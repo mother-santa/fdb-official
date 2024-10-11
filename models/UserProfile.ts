@@ -1,6 +1,7 @@
 export interface UserProfile {
     id: string; // Clerk-generated ID
     username: string;
+    slug: string;
     email: string;
     elfIds: string[];
     termsAccepted: boolean;

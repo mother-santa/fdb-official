@@ -3,6 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppUserContext } from "@/contexts";
+import { useToast } from "@/hooks/use-toast";
+import { checkUserSlugIsAvailable } from "@/lib/firebase";
+import { kebabCase } from "lodash";
 import { Upload, X } from "lucide-react";
 import { useState } from "react";
 import { Checkbox } from "./ui/checkbox";
@@ -17,6 +20,7 @@ export const ProfileCreationCard = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [acceptTerms, setAcceptTerms] = useState(false);
     const { clerkUser, userProfile } = useAppUserContext();
+    const { toast } = useToast();
 
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -35,11 +39,21 @@ export const ProfileCreationCard = () => {
         setPhotoPreview(null);
     };
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        const slug = kebabCase(nickname);
+        const slugIsUnique = await checkUserSlugIsAvailable(nickname);
+        if (!slugIsUnique) {
+            toast({
+                variant: "destructive",
+                title: "Whoops",
+                description: "Ce pseudo est déjà pris"
+            });
+            return;
+        }
         // Handle form submission here
-        console.log({ nickname, photo, acceptTerms });
-        setIsOpen(false);
+        //console.log({ nickname, photo, acceptTerms });
+        //setIsOpen(false);
     };
 
     console.log(clerkUser);
@@ -104,7 +118,7 @@ export const ProfileCreationCard = () => {
                                         I accept the terms and conditions
                                     </Label>
                                 </div>
-                                <Button type="submit" className="w-full" disabled={!acceptTerms}>
+                                <Button type="submit" className="w-full" disabled={!acceptTerms} onClick={handleSubmit}>
                                     Save Profile
                                 </Button>
                             </form>

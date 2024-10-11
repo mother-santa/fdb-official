@@ -23,6 +23,13 @@ export const storage = getStorage(app);
 /**
  * Profile Methods
  */
+export const checkUserSlugIsAvailable = async (slug: string): Promise<boolean> => {
+    const userProfileCollection = collection(db, USER_PROFILE_COLLECTION);
+    const q = query(userProfileCollection, where("slug", "==", slug));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty;
+};
+
 export const fetchUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
         const userDoc = await getDoc(doc(db, USER_PROFILE_COLLECTION, userId));
