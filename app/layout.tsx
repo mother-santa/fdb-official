@@ -1,5 +1,9 @@
+import { FAB } from "@/components/FAB";
 import Navbar from "@/components/ui/navbar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { Toaster } from "@/components/ui/toaster";
+import { AppUserProvider } from "@/contexts";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
@@ -26,13 +30,19 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full pt-30`}>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-                    <Navbar />
-                    {children}
-                </ThemeProvider>
-            </body>
-        </html>
+        <ClerkProvider>
+            <AppUserProvider>
+                <html lang="en">
+                    <body className={`${geistSans.variable} ${geistMono.variable} antialiased w-full pt-30`}>
+                        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+                            <Navbar />
+                            {children}
+                            <FAB />
+                            <Toaster />
+                        </ThemeProvider>
+                    </body>
+                </html>
+            </AppUserProvider>
+        </ClerkProvider>
     );
 }

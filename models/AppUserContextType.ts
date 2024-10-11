@@ -7,5 +7,5 @@ export interface AppUserContextType {
     isConnected: boolean;
     userProfile: UserProfile | null;
     posts: Post[];
-    clerckUser: UserResource | null;
+    clerkUser: UserResource | null;
 }

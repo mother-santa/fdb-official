@@ -1,6 +1,10 @@
 "use client";
 
+import { useAppUserContext } from "@/contexts";
+import { useToast } from "@/hooks/use-toast";
 import { Post } from "@/models";
+import { SignInButton } from "@clerk/nextjs";
+import { ToastAction } from "@radix-ui/react-toast";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, MessageSquare, ThumbsUp } from "lucide-react";
@@ -17,6 +21,8 @@ interface PostCardProps {
 
 export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentImage, setCurrentImage] = useState(0);
+    const { toast } = useToast();
+    const { clerkUser } = useAppUserContext();
     const images = ["/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600"];
 
     const nextImage = () => {
@@ -25,6 +31,33 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
 
     const prevImage = () => {
         setCurrentImage(prev => (prev - 1 + images.length) % images.length);
+    };
+
+    const displayNotConnectedToast = () => {
+        toast({
+            variant: "destructive",
+            title: "Whooooo",
+            description: "Tu devrais peut-être te connecter pour intéragir avec ce post !",
+            action: (
+                <SignInButton>
+                    <ToastAction altText="Me connecter">Me connecter</ToastAction>
+                </SignInButton>
+            )
+        });
+    };
+
+    const handleLikeClick = () => {
+        if (!clerkUser) {
+            displayNotConnectedToast();
+            return;
+        }
+    };
+
+    const handleCommentClick = () => {
+        if (!clerkUser) {
+            displayNotConnectedToast();
+            return;
+        }
     };
 
     return (
@@ -83,11 +116,11 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             <CardFooter className="flex justify-between">
                 <div className="flex items-center gap-2"></div>
                 <div className="flex gap-4">
-                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary">
+                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary" onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
                     </button>
-                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary">
+                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
                         <span className="text-sm">Comment</span>
                     </button>

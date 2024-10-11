@@ -1,6 +1,8 @@
 "use client";
+
 import picto from "@/assets/picto.svg";
 import { Button } from "@/components/ui/button";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { LogIn, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
@@ -41,10 +43,17 @@ export default function Navbar() {
                             </Link>
                         </div>
                         <div className="flex items-center">
-                            <Button variant="ghost" className="text-white hover:text-primary-foreground">
-                                <LogIn className="h-5 w-5 mr-2" />
-                                Login
-                            </Button>
+                            <SignedOut>
+                                <SignInButton>
+                                    <Button variant="ghost" className="text-white hover:text-primary-foreground">
+                                        <LogIn className="h-5 w-5 mr-2" />
+                                        Login
+                                    </Button>
+                                </SignInButton>
+                            </SignedOut>
+                            <SignedIn>
+                                <UserButton />
+                            </SignedIn>
                             <Button
                                 variant="ghost"
                                 size="icon"

@@ -16,7 +16,7 @@ export const ProfileCreationCard = () => {
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [acceptTerms, setAcceptTerms] = useState(false);
-    const { clerckUser, userProfile } = useAppUserContext();
+    const { clerkUser, userProfile } = useAppUserContext();
 
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -42,8 +42,10 @@ export const ProfileCreationCard = () => {
         setIsOpen(false);
     };
 
+    console.log(clerkUser);
+
     return (
-        clerckUser &&
+        clerkUser &&
         !userProfile && (
             <Card className="w-full max-w-md mx-auto">
                 <CardHeader>

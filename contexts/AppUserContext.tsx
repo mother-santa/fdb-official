@@ -1,3 +1,5 @@
+"use client";
+
 import { USER_PROFILE_COLLECTION } from "@/constants";
 import { db, listenToPublicPosts } from "@/lib/firebase";
 import { AppUserContextType, Post, UserProfile } from "@/models";
@@ -15,7 +17,7 @@ const defaultValue: AppUserContextType = {
     isLoadingUserProfile: true,
     userProfile: null,
     posts: [],
-    clerckUser: null
+    clerkUser: null
 };
 
 const AppUserContext = createContext(defaultValue);
@@ -25,13 +27,13 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(true);
-    const { user: clerckUser } = useUser();
-    const isConnected: boolean = !isLoadingUserProfile && !!clerckUser;
+    const { user: clerkUser } = useUser();
+    const isConnected: boolean = !isLoadingUserProfile && !!clerkUser;
 
     useEffect(() => {
-        if (isLoaded && clerckUser) {
+        if (isLoaded && clerkUser) {
             const checkUserProfile = async () => {
-                const docRef = doc(db, USER_PROFILE_COLLECTION, clerckUser.id);
+                const docRef = doc(db, USER_PROFILE_COLLECTION, clerkUser.id);
                 const docSnapshot = await getDoc(docRef);
                 if (docSnapshot.exists()) {
                     setUserProfile({ id: docSnapshot.id, ...docSnapshot.data() } as UserProfile);
@@ -40,7 +42,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             };
             checkUserProfile();
         }
-    }, [isLoaded, clerckUser?.id]);
+    }, [isLoaded, clerkUser?.id]);
 
     useEffect(() => {
         if (userProfile) {
@@ -72,7 +74,10 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         });
 
         return () => unsubscribe();
-    }, [clerckUser?.id]);
+    }, [clerkUser?.id]);
+
+    console.log("userProfile", userProfile);
+    console.log("clerkUser", clerkUser);
 
     const ctx = {
         ...value,
@@ -80,7 +85,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         isConnected,
         userProfile: userProfile,
         posts,
-        clerckUser: clerckUser ?? null
+        clerkUser: clerkUser ?? null
     };
 
     console.log("ctx", ctx);
