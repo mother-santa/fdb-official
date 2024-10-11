@@ -1,3 +1,4 @@
+import { UserResource } from "@clerk/types";
 import { Post } from "./Post";
 import { UserProfile } from "./UserProfile";
 
@@ -6,5 +7,5 @@ export interface AppUserContextType {
     isConnected: boolean;
     userProfile: UserProfile | null;
     posts: Post[];
-    clerckUserId: string | null;
+    clerckUser: UserResource | null;
 }

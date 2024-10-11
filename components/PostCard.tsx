@@ -1,21 +1,21 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Post } from "@/models";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, MessageSquare, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 
 interface PostCardProps {
     post?: Post;
     className?: string;
 }
 
-export default function PostCard({ post, className = "" }: PostCardProps) {
+export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentImage, setCurrentImage] = useState(0);
     const images = ["/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600"];
 
@@ -40,7 +40,7 @@ export default function PostCard({ post, className = "" }: PostCardProps) {
                                   .join("")
                                   .toUpperCase()
                                   .slice(0, 2)
-                            : "LA"}
+                            : "--"}
                     </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
@@ -56,8 +56,9 @@ export default function PostCard({ post, className = "" }: PostCardProps) {
                     <Image
                         src={images[currentImage]}
                         alt={`${post?.description || "Pas de contenu"} photo ${currentImage + 1}`}
-                        layout="fill"
-                        objectFit="cover"
+                        height={400}
+                        width={600}
+                        style={{ objectFit: "cover", maxHeight: 400 }}
                     />
                     <Button
                         variant="ghost"
@@ -94,4 +95,4 @@ export default function PostCard({ post, className = "" }: PostCardProps) {
             </CardFooter>
         </Card>
     );
-}
+};

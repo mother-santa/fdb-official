@@ -1,7 +1,7 @@
 import { USER_PROFILE_COLLECTION } from "@/constants";
 import { db, listenToPublicPosts } from "@/lib/firebase";
-import { AppUserContextType, Elf, Post, UserProfile } from "@/models";
-import { useAuth } from "@clerk/nextjs";
+import { AppUserContextType, Post, UserProfile } from "@/models";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
@@ -15,22 +15,23 @@ const defaultValue: AppUserContextType = {
     isLoadingUserProfile: true,
     userProfile: null,
     posts: [],
-    clerckUserId: ""
+    clerckUser: null
 };
 
 const AppUserContext = createContext(defaultValue);
 
 export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value = defaultValue }) => {
-    const { isLoaded, userId } = useAuth();
+    const { isLoaded } = useAuth();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(true);
-    const isConnected: boolean = !isLoadingUserProfile && !!userId;
+    const { user: clerckUser } = useUser();
+    const isConnected: boolean = !isLoadingUserProfile && !!clerckUser;
 
     useEffect(() => {
-        if (isLoaded && userId) {
+        if (isLoaded && clerckUser) {
             const checkUserProfile = async () => {
-                const docRef = doc(db, USER_PROFILE_COLLECTION, userId);
+                const docRef = doc(db, USER_PROFILE_COLLECTION, clerckUser.id);
                 const docSnapshot = await getDoc(docRef);
                 if (docSnapshot.exists()) {
                     setUserProfile({ id: docSnapshot.id, ...docSnapshot.data() } as UserProfile);
@@ -39,7 +40,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             };
             checkUserProfile();
         }
-    }, [isLoaded, userId]);
+    }, [isLoaded, clerckUser?.id]);
 
     useEffect(() => {
         if (userProfile) {
@@ -56,7 +57,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
                         description: doc.data().description ?? "",
                         ...doc.data()
                     }));
-                    setUserElves(spacesData as Elf[]);
+                    // setUserElves(spacesData as Elf[]);
                 } catch (error) {
                     console.error("Error fetching elf spaces: ", error);
                 }
@@ -71,22 +72,20 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         });
 
         return () => unsubscribe();
-    }, [userId]);
+    }, [clerckUser?.id]);
 
-    return (
-        <AppUserContext.Provider
-            value={{
-                ...value,
-                isLoadingUserProfile,
-                isConnected,
-                userProfile: userProfile,
-                posts,
-                clerckUserId: userId ?? ""
-            }}
-        >
-            {children}
-        </AppUserContext.Provider>
-    );
+    const ctx = {
+        ...value,
+        isLoadingUserProfile,
+        isConnected,
+        userProfile: userProfile,
+        posts,
+        clerckUser: clerckUser ?? null
+    };
+
+    console.log("ctx", ctx);
+
+    return <AppUserContext.Provider value={ctx}>{children}</AppUserContext.Provider>;
 };
 
 export const useAppUserContext = () => {
