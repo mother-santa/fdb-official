@@ -100,9 +100,6 @@ export const ProfileCreationCard = () => {
         loadUserProfile?.();
     };
 
-    console.log(clerkUser);
-    console.log(userProfile);
-
     return (
         clerkUser &&
         !userProfile && (
