@@ -1,4 +1,7 @@
+import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
+import { checkElfSlugIsAvailable, createElf, updateElfPhoto } from "@/lib/firebase";
+import { kebabCase } from "lodash";
 import { Loader2, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -6,13 +9,14 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 
-export const ProfileCreationForm = () => {
+export const ProfileCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const [nickname, setNickname] = useState<string>("");
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isPublic, setIsPublic] = useState<boolean>(false);
     const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false);
     const { toast } = useToast();
+    const { clerkUser, loadUserProfile } = useAppContext();
 
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -34,10 +38,54 @@ export const ProfileCreationForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setIsCreatingProfile(true);
-        setTimeout(() => {
+        if (!clerkUser) {
             setIsCreatingProfile(false);
-            // setIsOpen(false);
-        }, 2000);
+            return;
+        }
+        const slug = kebabCase(nickname);
+        const slugIsUnique = await checkElfSlugIsAvailable(slug);
+        if (!slugIsUnique) {
+            toast({
+                variant: "destructive",
+                title: "Whoops",
+                description: "Ce pseudo de lutin est déjà pris"
+            });
+            setIsCreatingProfile(false);
+            return;
+        }
+        if (slug.length < 4) {
+            toast({
+                variant: "destructive",
+                title: "Whoops",
+                description: "Le pseudo doit contenir au moins 4 caractères"
+            });
+            setIsCreatingProfile(false);
+            return;
+        }
+
+        try {
+            if (photo) {
+                await updateElfPhoto(clerkUser?.id, slug, photo);
+            }
+            await createElf(clerkUser?.id, {
+                slug,
+                name: nickname,
+                isPrivate: !isPublic
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsCreatingProfile(false);
+        }
+
+        setIsOpen(false);
+
+        toast({
+            title: "Bravo !!!",
+            description: "Votre lutin a été créé avec succès"
+        });
+
+        loadUserProfile?.();
     };
 
     return (

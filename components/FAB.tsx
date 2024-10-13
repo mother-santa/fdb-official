@@ -29,7 +29,7 @@ export const FAB = () => {
                         <DialogTitle>Comment s'appelle ton lutin</DialogTitle>
                         <DialogDescription>Pour poster une bêtise, présente-nous ton lutin !</DialogDescription>
                     </DialogHeader>
-                    <ProfileCreationForm />
+                    <ProfileCreationForm setIsOpen={setIsOpen} />
                 </DialogContent>
             </Dialog>
         )

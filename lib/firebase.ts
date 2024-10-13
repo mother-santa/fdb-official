@@ -150,6 +150,13 @@ export const updateElfPhoto = async (userId: string, elfId: string, photo: File)
     }
 };
 
+export const checkElfSlugIsAvailable = async (slug: string): Promise<boolean> => {
+    const elfCollection = collection(db, ELF_COLLECTION);
+    const q = query(elfCollection, where("slug", "==", slug));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty;
+};
+
 /**
  * Post Methods
  */

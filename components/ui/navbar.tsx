@@ -78,17 +78,17 @@ export default function Navbar() {
                                     <DropdownMenuContent align="end" className="w-56">
                                         <DropdownMenuItem>
                                             <User className="mr-2 h-4 w-4" />
-                                            <span>My Profile</span>
+                                            <span>Mon profil</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem>
                                             <Users className="mr-2 h-4 w-4" />
-                                            <span>My Elves</span>
+                                            <span>Mes lutins</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <SignOutButton>
                                             <DropdownMenuItem>
                                                 <LogOut className="mr-2 h-4 w-4" />
-                                                <span>Logout</span>
+                                                <span>Se déconnecter</span>
                                             </DropdownMenuItem>
                                         </SignOutButton>
                                     </DropdownMenuContent>
