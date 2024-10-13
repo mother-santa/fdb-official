@@ -21,7 +21,7 @@ export default function Navbar() {
 
     useEffect(() => {
         const handleScroll = () => {
-            const currentScrollPos = window.pageYOffset;
+            const currentScrollPos = window.scrollY;
             setVisible(prevScrollPos > currentScrollPos || currentScrollPos < 10);
             setPrevScrollPos(currentScrollPos);
         };
@@ -85,7 +85,7 @@ export default function Navbar() {
                                             <span>My Elves</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <SignOutButton redirectUrl="/refresh">
+                                        <SignOutButton>
                                             <DropdownMenuItem>
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>Logout</span>

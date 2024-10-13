@@ -3,8 +3,6 @@ import { Post } from "./Post";
 import { UserProfile } from "./UserProfile";
 
 export interface AppContextType {
-    isLoadingUserProfile: boolean;
-    isConnected: boolean;
     userProfile: UserProfile | null;
     posts: Post[];
     clerkUser: UserResource | null;

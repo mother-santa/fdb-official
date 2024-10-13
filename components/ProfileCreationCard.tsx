@@ -5,10 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { checkUserSlugIsAvailable, updateUserProfile, updateUserProfilePhoto } from "@/lib/firebase";
+import { Switch } from "@radix-ui/react-switch";
 import { kebabCase } from "lodash";
-import { Upload, X } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import { useState } from "react";
-import { Checkbox } from "./ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -98,8 +98,6 @@ export const ProfileCreationCard = () => {
         });
     };
 
-    console.log(clerkUser);
-
     return (
         clerkUser &&
         !userProfile && (
@@ -155,14 +153,19 @@ export const ProfileCreationCard = () => {
                                     )}
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked as boolean)} required />
+                                    <Switch id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked as boolean)} required />
                                     <Label htmlFor="terms" className="text-sm">
                                         I accept the terms and conditions
                                     </Label>
                                 </div>
-                                <Button type="submit" className="w-full" disabled={!acceptTerms || isCreatingProfile} onClick={handleSubmit}>
-                                    {isCreatingProfile ? <>loading</> : "Enregistrer mon profil"}
-                                </Button>
+                                {isCreatingProfile ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Enregistrement...
+                                    </>
+                                ) : (
+                                    "Enregistrer mon profil"
+                                )}
                             </form>
                         </DialogContent>
                     </Dialog>

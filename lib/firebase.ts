@@ -114,7 +114,7 @@ export const deleteElf = async (elfId: string) => {
     }
 };
 
-export const fetchUserElfes = async (userId: string): Promise<Elf[]> => {
+export const fetchUserElves = async (userId: string): Promise<Elf[]> => {
     try {
         if (!userId) {
             console.error("Invalid userId provided", userId);
@@ -123,23 +123,23 @@ export const fetchUserElfes = async (userId: string): Promise<Elf[]> => {
         const elfCollection = collection(db, ELF_COLLECTION);
         const q = query(elfCollection, where("ownerId", "==", userId));
         const querySnapshot = await getDocs(q);
-        const elfes: Elf[] = [];
+        const elves: Elf[] = [];
         querySnapshot.forEach(doc => {
             const elfData = doc.data();
             if (elfData) {
-                elfes.push({ id: doc.id, ...elfData } as Elf);
+                elves.push({ id: doc.id, ...elfData } as Elf);
             }
         });
-        return elfes;
+        return elves;
     } catch (error) {
-        console.error("Error fetching user elfes:", error);
+        console.error("Error fetching user elves:", error);
         return [];
     }
 };
 
 export const updateElfPhoto = async (userId: string, elfId: string, photo: File): Promise<string | null> => {
     try {
-        const storageRef = ref(storage, `profiles/${userId}/elfes/${elfId}/avatar`);
+        const storageRef = ref(storage, `profiles/${userId}/elves/${elfId}/avatar`);
         const uploadResult = await uploadBytes(storageRef, photo);
         const url = await getDownloadURL(uploadResult.ref);
         await updateElf(elfId, { avatarUrl: url });
