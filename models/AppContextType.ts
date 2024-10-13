@@ -3,7 +3,8 @@ import { Post } from "./Post";
 import { UserProfile } from "./UserProfile";
 
 export interface AppContextType {
+    clerkUser: UserResource | null;
     userProfile: UserProfile | null;
     posts: Post[];
-    clerkUser: UserResource | null;
+    loadUserProfile?: () => Promise<void>;
 }
