@@ -11,6 +11,6 @@ export interface UserProfile {
         partnerEmails: boolean;
     };
     preferredTheme: "light" | "dark";
-    activeElfId: string;
+    currentElfId: string;
     avatarUrl: string;
 }

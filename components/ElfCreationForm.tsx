@@ -9,7 +9,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Switch } from "./ui/switch";
 
-export const ProfileCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
+export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const [nickname, setNickname] = useState<string>("");
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);

@@ -1,10 +1,8 @@
 "use client";
 
-import { USER_PROFILE_COLLECTION } from "@/constants";
-import { db } from "@/lib/firebase";
-import { AppContextType, Post, UserProfile } from "@/models";
+import { fetchUserElves, fetchUserProfile, updateUserProfile } from "@/lib/firebase";
+import { AppContextType, Elf, Post, UserProfile } from "@/models";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { doc, getDoc } from "firebase/firestore";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 interface UserProviderProps {
@@ -14,7 +12,9 @@ interface UserProviderProps {
 const defaultValue: AppContextType = {
     userProfile: null,
     posts: [],
-    clerkUser: null
+    clerkUser: null,
+    elves: [],
+    currentElf: null
 };
 
 const AppContext = createContext(defaultValue);
@@ -24,6 +24,8 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     const { user: clerkUser } = useUser();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
+    const [elves, setElves] = useState<Elf[]>([]);
+    const [currentElf, setCurrentElf] = useState<Elf | null>(null);
 
     useEffect(() => {
         if (!isLoaded) {
@@ -35,41 +37,31 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     }, [clerkUser, isLoaded]);
 
     const loadUserProfile = async () => {
-        const docRef = doc(db, USER_PROFILE_COLLECTION, clerkUser?.id ?? "");
-        const docSnapshot = await getDoc(docRef);
-        if (docSnapshot.exists()) {
-            setUserProfile({ id: docSnapshot.id, ...docSnapshot.data() } as UserProfile);
+        const usrProfile = await fetchUserProfile(clerkUser?.id ?? "");
+        setUserProfile(usrProfile);
+        if (usrProfile) {
+            setElves(await fetchUserElves(clerkUser?.id ?? ""));
         }
     };
 
-    // useEffect(() => {
-    //     if (!isLoaded) {
-    //         return;
-    //     }
-    //     if (clerkUser) {
-    //         const checkUserProfile = async () => {
-    //             const docRef = doc(db, USER_PROFILE_COLLECTION, clerkUser.id);
-    //             const docSnapshot = await getDoc(docRef);
-    //             if (docSnapshot.exists()) {
-    //                 setUserProfile({ id: docSnapshot.id, ...docSnapshot.data() } as UserProfile);
-    //             }
-    //         };
-    //         checkUserProfile();
-    //     } else {
-    //         setUserProfile(null);
-    //     }
-    //     setCtx({ ...ctx, clerkUser: clerkUser ?? null });
-    // }, [isLoaded, clerkUser?.id]);
+    useEffect(() => {
+        if (userProfile && userProfile.currentElfId) {
+            setCurrentElf(elves.find(elf => elf.id === userProfile.currentElfId) ?? null);
+        } else if (elves.length > 0) {
+            setCurrentElf(elves[0]);
+            updateUserProfile(clerkUser?.id ?? "", { currentElfId: elves[0].id });
+        }
+    }, [userProfile, elves]);
 
-    // useEffect(() => {
-    //     const unsubscribe = listenToPublicPosts(newPosts => {
-    //         setPosts(newPosts);
-    //     });
-    //     setCtx({ ...ctx, posts: posts });
-    //     return () => unsubscribe();
-    // }, [clerkUser?.id]);
+    useEffect(() => {
+        console.log(currentElf);
+    }, [currentElf]);
 
-    return <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile }}>{children}</AppContext.Provider>;
+    return (
+        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf }}>
+            {children}
+        </AppContext.Provider>
+    );
 };
 
 export const useAppContext = () => {

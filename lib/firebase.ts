@@ -68,14 +68,17 @@ export const updateUserProfilePhoto = async (userId: string, photo: File) => {
 /**
  * Elf Methods
  */
-export const createElf = async (userId: string, data: Partial<Elf>): Promise<Elf | null> => {
+export const createElf = async (userId: string, data: Partial<Elf>) => {
     try {
-        const elfCollection = collection(db, ELF_COLLECTION);
-        const newElf = await addDoc(elfCollection, {
-            ownerId: userId,
-            ...data
-        });
-        return { id: newElf.id, ...data } as Elf;
+        const elfDoc = doc(db, ELF_COLLECTION, data.slug ?? "");
+        await setDoc(
+            elfDoc,
+            {
+                ownerId: userId,
+                ...data
+            },
+            { merge: true }
+        );
     } catch (error) {
         console.error("Error creating elf:", error);
         return null;

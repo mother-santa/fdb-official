@@ -4,7 +4,7 @@ import { useAppContext } from "@/contexts";
 import { Dialog } from "@radix-ui/react-dialog";
 import { Pen } from "lucide-react";
 import { useState } from "react";
-import { ProfileCreationForm } from "./ProfileCreationForm";
+import { ElfCreationForm } from "./ElfCreationForm";
 import { Button } from "./ui/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
@@ -29,7 +29,7 @@ export const FAB = () => {
                         <DialogTitle>Comment s'appelle ton lutin</DialogTitle>
                         <DialogDescription>Pour poster une bêtise, présente-nous ton lutin !</DialogDescription>
                     </DialogHeader>
-                    <ProfileCreationForm setIsOpen={setIsOpen} />
+                    <ElfCreationForm setIsOpen={setIsOpen} />
                 </DialogContent>
             </Dialog>
         )
