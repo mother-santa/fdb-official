@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useAppUserContext } from "@/contexts";
+import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { checkUserSlugIsAvailable } from "@/lib/firebase";
+import { checkUserSlugIsAvailable, updateUserProfile, updateUserProfilePhoto } from "@/lib/firebase";
 import { kebabCase } from "lodash";
 import { Upload, X } from "lucide-react";
 import { useState } from "react";
@@ -19,7 +19,8 @@ export const ProfileCreationCard = () => {
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [acceptTerms, setAcceptTerms] = useState(false);
-    const { clerkUser, userProfile } = useAppUserContext();
+    const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+    const { clerkUser, userProfile } = useAppContext();
     const { toast } = useToast();
 
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,19 +42,60 @@ export const ProfileCreationCard = () => {
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
+        setIsCreatingProfile(true);
+        if (!clerkUser) {
+            setIsCreatingProfile(false);
+            return;
+        }
         const slug = kebabCase(nickname);
-        const slugIsUnique = await checkUserSlugIsAvailable(nickname);
+        const slugIsUnique = await checkUserSlugIsAvailable(slug);
         if (!slugIsUnique) {
             toast({
                 variant: "destructive",
                 title: "Whoops",
                 description: "Ce pseudo est déjà pris"
             });
+            setIsCreatingProfile(false);
             return;
         }
-        // Handle form submission here
-        //console.log({ nickname, photo, acceptTerms });
-        //setIsOpen(false);
+        if (slug.length < 4) {
+            toast({
+                variant: "destructive",
+                title: "Whoops",
+                description: "Le pseudo doit contenir au moins 4 caractères"
+            });
+            setIsCreatingProfile(false);
+            return;
+        }
+
+        try {
+            if (photo) {
+                await updateUserProfilePhoto(clerkUser?.id, photo);
+            }
+
+            await updateUserProfile(clerkUser.id, {
+                slug,
+                username: nickname,
+                email: clerkUser.emailAddresses[0].emailAddress,
+                termsAccepted: acceptTerms
+                // communicationPreferences: {
+                //     notificationEmails: true,
+                //     newsletterEmails: true,
+                //     partnerEmails: true
+                // }
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsCreatingProfile(false);
+        }
+
+        setIsOpen(false);
+
+        toast({
+            title: "Bravo !!!",
+            description: "Votre profil a été créé avec succès"
+        });
     };
 
     console.log(clerkUser);
@@ -118,8 +160,8 @@ export const ProfileCreationCard = () => {
                                         I accept the terms and conditions
                                     </Label>
                                 </div>
-                                <Button type="submit" className="w-full" disabled={!acceptTerms} onClick={handleSubmit}>
-                                    Save Profile
+                                <Button type="submit" className="w-full" disabled={!acceptTerms || isCreatingProfile} onClick={handleSubmit}>
+                                    {isCreatingProfile ? <>loading</> : "Enregistrer mon profil"}
                                 </Button>
                             </form>
                         </DialogContent>

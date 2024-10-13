@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppUserContext } from "@/contexts";
+import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
@@ -22,7 +22,7 @@ interface PostCardProps {
 export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentImage, setCurrentImage] = useState(0);
     const { toast } = useToast();
-    const { clerkUser } = useAppUserContext();
+    const { clerkUser } = useAppContext();
     const images = ["/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600"];
 
     const nextImage = () => {

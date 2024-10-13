@@ -1,4 +1,4 @@
-export * from "./AppUserContextType";
+export * from "./AppContextType";
 export * from "./Comment";
 export * from "./Elf";
 export * from "./Invitation";

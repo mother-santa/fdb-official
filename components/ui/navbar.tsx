@@ -2,17 +2,22 @@
 
 import picto from "@/assets/picto.svg";
 import { Button } from "@/components/ui/button";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { LogIn, Moon, Sun } from "lucide-react";
+import { useAppContext } from "@/contexts";
+import { SignedIn, SignedOut, SignInButton, SignOutButton } from "@clerk/nextjs";
+import { Avatar } from "@radix-ui/react-avatar";
+import { LogIn, LogOut, Moon, Sun, User, Users } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AvatarFallback, AvatarImage } from "./avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./dropdown-menu";
 
 export default function Navbar() {
     const [prevScrollPos, setPrevScrollPos] = useState(0);
     const [visible, setVisible] = useState(true);
     const { theme, setTheme } = useTheme();
+    const { clerkUser, userProfile } = useAppContext();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -52,7 +57,42 @@ export default function Navbar() {
                                 </SignInButton>
                             </SignedOut>
                             <SignedIn>
-                                <UserButton />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Avatar className="w-12 h-12">
+                                            <AvatarImage
+                                                className="rounded-full"
+                                                src={userProfile?.avatarUrl ?? "/placeholder.svg?height=40&width=40"}
+                                                alt={userProfile?.username ?? clerkUser?.username ?? "?"}
+                                            />
+                                            <AvatarFallback>
+                                                {(userProfile?.username ?? clerkUser?.username ?? "?")
+                                                    .split(" ")
+                                                    .map(name => name[0])
+                                                    .join("")
+                                                    .toUpperCase()
+                                                    .slice(0, 2)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-56">
+                                        <DropdownMenuItem>
+                                            <User className="mr-2 h-4 w-4" />
+                                            <span>My Profile</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Users className="mr-2 h-4 w-4" />
+                                            <span>My Elves</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <SignOutButton redirectUrl="/refresh">
+                                            <DropdownMenuItem>
+                                                <LogOut className="mr-2 h-4 w-4" />
+                                                <span>Logout</span>
+                                            </DropdownMenuItem>
+                                        </SignOutButton>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </SignedIn>
                             <Button
                                 variant="ghost"

@@ -2,17 +2,16 @@
 
 import { USER_PROFILE_COLLECTION } from "@/constants";
 import { db, listenToPublicPosts } from "@/lib/firebase";
-import { AppUserContextType, Post, UserProfile } from "@/models";
+import { AppContextType, Post, UserProfile } from "@/models";
 import { useAuth, useUser } from "@clerk/nextjs";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 interface UserProviderProps {
     children: ReactNode;
-    value?: AppUserContextType;
+    value?: AppContextType;
 }
-
-const defaultValue: AppUserContextType = {
+const defaultValue: AppContextType = {
     isConnected: false,
     isLoadingUserProfile: true,
     userProfile: null,
@@ -20,7 +19,7 @@ const defaultValue: AppUserContextType = {
     clerkUser: null
 };
 
-const AppUserContext = createContext(defaultValue);
+const AppContext = createContext(defaultValue);
 
 export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value = defaultValue }) => {
     const { isLoaded } = useAuth();
@@ -29,6 +28,10 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     const [isLoadingUserProfile, setIsLoadingUserProfile] = useState(true);
     const { user: clerkUser } = useUser();
     const isConnected: boolean = !isLoadingUserProfile && !!clerkUser;
+
+    const [ctx, setCtx] = useState<AppContextType>({
+        ...defaultValue
+    });
 
     useEffect(() => {
         if (isLoaded && clerkUser) {
@@ -42,6 +45,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             };
             checkUserProfile();
         }
+        setCtx({ ...ctx, clerkUser: clerkUser ?? null });
     }, [isLoaded, clerkUser?.id]);
 
     useEffect(() => {
@@ -66,33 +70,20 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             };
             fetchElfSpaces();
         }
+        setCtx({ ...ctx, userProfile: userProfile });
     }, [userProfile]);
 
     useEffect(() => {
         const unsubscribe = listenToPublicPosts(newPosts => {
             setPosts(newPosts);
         });
-
+        setCtx({ ...ctx, posts: posts });
         return () => unsubscribe();
     }, [clerkUser?.id]);
 
-    console.log("userProfile", userProfile);
-    console.log("clerkUser", clerkUser);
-
-    const ctx = {
-        ...value,
-        isLoadingUserProfile,
-        isConnected,
-        userProfile: userProfile,
-        posts,
-        clerkUser: clerkUser ?? null
-    };
-
-    console.log("ctx", ctx);
-
-    return <AppUserContext.Provider value={ctx}>{children}</AppUserContext.Provider>;
+    return <AppContext.Provider value={ctx}>{children}</AppContext.Provider>;
 };
 
-export const useAppUserContext = () => {
-    return useContext(AppUserContext);
+export const useAppContext = () => {
+    return useContext(AppContext);
 };

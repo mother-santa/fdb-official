@@ -1,13 +1,13 @@
 "use client";
 
-import { useAppUserContext } from "@/contexts";
+import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { ToastAction } from "@radix-ui/react-toast";
 import { Pen } from "lucide-react";
 import { Button } from "./ui/button";
 
 export const FAB = () => {
-    const { userProfile } = useAppUserContext();
+    const { userProfile } = useAppContext();
     const { toast } = useToast();
 
     const handleFabClick = () => {
