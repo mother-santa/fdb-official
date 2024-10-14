@@ -104,7 +104,7 @@ export const ProfileCreationCard = () => {
     return (
         clerkUser &&
         !userProfile && (
-            <Card className="w-full max-w-md mx-auto">
+            <Card className="w-full max-w-md mx-auto" variant="outline">
                 <CardHeader>
                     <CardTitle>Remplis ton profil</CardTitle>
                     <CardDescription>Personnalise ton compte pour profiter pleinement de l'application.</CardDescription>
@@ -134,7 +134,13 @@ export const ProfileCreationCard = () => {
                                     <Label>Tu as une photo de profil ?</Label>
                                     {photoPreview ? (
                                         <div className="relative w-32 h-32 mx-auto">
-                                            <Image src={photoPreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" />
+                                            <Image
+                                                src={photoPreview}
+                                                alt="Profile preview"
+                                                className="w-full h-full object-cover rounded-full"
+                                                height={128}
+                                                width={128}
+                                            />
                                             <Button
                                                 type="button"
                                                 variant="destructive"
