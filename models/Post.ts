@@ -5,8 +5,8 @@ export interface Post {
     elfeAvatarUrl: string;
     imageUrl: string;
     description: string;
-    createdAt: Date;
     likeCount: number;
     likedByUserIds: string[];
     isPrivate: boolean;
+    createdAt: Date;
 }
