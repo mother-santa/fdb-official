@@ -1,29 +1,20 @@
+"use client";
+
+import { NoPostCard } from "@/components/NoPostCard";
 import { PostCard } from "@/components/PostCard";
 import { ProfileCreationCard } from "@/components/ProfileCreationCard";
 import Container from "@/components/ui/container";
-import { Post } from "@/models";
+import { useAppContext } from "@/contexts";
 
 export default function Home() {
-    const post: Post = {
-        id: "post1",
-        elfId: "elf123",
-        elfeName: "Jingle Bells",
-        elfeAvatarUrl: "/placeholder.svg?height=400&width=600",
-        imageUrl: "/placeholder.svg?height=400&width=600",
-        description: "Just finished decorating the Christmas tree! 🎄✨ #ElfLife",
-        createdAt: new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000), // Approximately 6 months ago
-        likeCount: 42,
-        likedByUserIds: ["user1", "user2", "user3"],
-        isPrivate: false
-    };
+    const { posts } = useAppContext();
     return (
         <Container className="max-w-lg pt-20">
             <ProfileCreationCard />
-            {Array(50)
-                .fill(0)
-                .map((_, index) => (
-                    <PostCard key={index} className="px-2 my-4" post={post} />
-                ))}
+            {posts.map(post => (
+                <PostCard key={post.id} post={post} />
+            ))}
+            {posts.length === 0 && <NoPostCard />}
         </Container>
     );
 }

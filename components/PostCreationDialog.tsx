@@ -14,7 +14,7 @@ import { useCallback, useRef, useState } from "react";
 import { ElfCreationForm } from "./ElfCreationForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
-export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
+export const PostCreationDialog = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const { currentElf, elves, clerkUser, loadUserProfile } = useAppContext();
     if (!currentElf) return null;
     const [currentUser, setCurrentUser] = useState<Elf>(currentElf ?? elves[0]);
@@ -201,7 +201,7 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                     <Button type="submit">Enregistrer</Button>
                 </div>
             </form>
-            {/* New User Form Dialog */}
+
             <Dialog open={isNewUserFormOpen} onOpenChange={setIsNewUserFormOpen}>
                 <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
