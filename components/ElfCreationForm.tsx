@@ -3,6 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { checkElfSlugIsAvailable, createElf, updateElfPhoto } from "@/lib/firebase";
 import { kebabCase } from "lodash";
 import { Loader2, Lock, LockOpen, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
@@ -101,7 +102,7 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
                 <Label>Photo du lutin</Label>
                 {photoPreview ? (
                     <div className="relative w-32 h-32 mx-auto">
-                        <img src={photoPreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" />
+                        <Image src={photoPreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" height={128} width={128} />
                         <Button type="button" variant="destructive" size="icon" className="absolute top-0 right-0 rounded-full" onClick={handleRemovePhoto}>
                             <X className="h-4 w-4" />
                         </Button>

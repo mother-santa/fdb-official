@@ -9,8 +9,9 @@ import { Button } from "./ui/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 export const FAB = () => {
-    const { userProfile } = useAppContext();
+    const { userProfile, currentElf } = useAppContext();
     const [isOpen, setIsOpen] = useState<boolean>(false);
+    console.log(currentElf);
     return (
         userProfile && (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -25,11 +26,23 @@ export const FAB = () => {
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Comment s'appelle ton lutin</DialogTitle>
-                        <DialogDescription>Pour poster une bêtise, présente-nous ton lutin !</DialogDescription>
-                    </DialogHeader>
-                    <ElfCreationForm setIsOpen={setIsOpen} />
+                    {!currentElf ? (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>Comment s'appelle ton lutin</DialogTitle>
+                                <DialogDescription>Pour poster une bêtise, présente-nous ton lutin !</DialogDescription>
+                            </DialogHeader>
+                            <ElfCreationForm setIsOpen={setIsOpen} />
+                        </>
+                    ) : (
+                        <>
+                            <DialogHeader>
+                                <DialogTitle>Encore une bêtise ?</DialogTitle>
+                                <DialogDescription>Allez, fais nous profiter !</DialogDescription>
+                            </DialogHeader>
+                            {/* <PostCreationForm setIsOpen={setIsOpen} /> */}
+                        </>
+                    )}
                 </DialogContent>
             </Dialog>
         )

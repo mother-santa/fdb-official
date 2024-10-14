@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { checkUserSlugIsAvailable, updateUserProfile, updateUserProfilePhoto } from "@/lib/firebase";
 import { kebabCase } from "lodash";
 import { Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -133,7 +134,7 @@ export const ProfileCreationCard = () => {
                                     <Label>Tu as une photo de profil ?</Label>
                                     {photoPreview ? (
                                         <div className="relative w-32 h-32 mx-auto">
-                                            <img src={photoPreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" />
+                                            <Image src={photoPreview} alt="Profile preview" className="w-full h-full object-cover rounded-full" />
                                             <Button
                                                 type="button"
                                                 variant="destructive"
