@@ -131,7 +131,7 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
                     </Alert>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <Switch id="public-profile" checked={isPublic} onCheckedChange={value => setIsPublic(!isPublic)} />
+                    <Switch id="public-profile" checked={isPublic} onCheckedChange={() => setIsPublic(!isPublic)} />
                     <Label htmlFor="public-profile">Je souhaite que mes publications soient publiques</Label>
                 </div>
             </div>
