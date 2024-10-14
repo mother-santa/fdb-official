@@ -8,7 +8,8 @@ export default function Home() {
         id: "post1",
         elfId: "elf123",
         elfeName: "Jingle Bells",
-        imageUrl: "",
+        elfeAvatarUrl: "/placeholder.svg?height=400&width=600",
+        imageUrl: "/placeholder.svg?height=400&width=600",
         description: "Just finished decorating the Christmas tree! 🎄✨ #ElfLife",
         createdAt: new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000), // Approximately 6 months ago
         likeCount: 42,
