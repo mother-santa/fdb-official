@@ -5,13 +5,14 @@ import { Dialog } from "@radix-ui/react-dialog";
 import { Pen } from "lucide-react";
 import { useState } from "react";
 import { ElfCreationForm } from "./ElfCreationForm";
+import { PostCreationForm } from "./PostCreationForm";
 import { Button } from "./ui/button";
 import { DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 export const FAB = () => {
     const { userProfile, currentElf } = useAppContext();
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    console.log(currentElf);
+
     return (
         userProfile && (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -40,7 +41,7 @@ export const FAB = () => {
                                 <DialogTitle>Encore une bêtise ?</DialogTitle>
                                 <DialogDescription>Allez, fais nous profiter !</DialogDescription>
                             </DialogHeader>
-                            {/* <PostCreationForm setIsOpen={setIsOpen} /> */}
+                            <PostCreationForm setIsOpen={setIsOpen} />
                         </>
                     )}
                 </DialogContent>
