@@ -6,6 +6,7 @@ import { useClerk } from "@clerk/nextjs";
 import { PlusCircle } from "lucide-react";
 import { useState } from "react";
 import { ElfDialogForm } from "./ElfDialogForm";
+import { PostCreationDialog } from "./PostCreationDialog";
 import { ProfileDialogForm } from "./ProfileDialogForm";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -13,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 export const NoPostCard = () => {
     const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
     const [isElfDialogOpen, setIsElfDialogOpen] = useState(false);
+    const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
     const { toast } = useToast();
     const { clerkUser, userProfile, currentElf } = useAppContext();
     const clerk = useClerk();
@@ -63,6 +65,10 @@ export const NoPostCard = () => {
                             if (clerkUser && userProfile && !currentElf) {
                                 setIsElfDialogOpen(true);
                             }
+
+                            if (clerkUser && userProfile && currentElf) {
+                                setIsPostDialogOpen(true);
+                            }
                         }}
                     >
                         <PlusCircle className="w-4 h-4" />
@@ -71,7 +77,8 @@ export const NoPostCard = () => {
                 </CardContent>
             </Card>
             <ProfileDialogForm isOpen={isProfileDialogOpen} setIsOpen={setIsProfileDialogOpen} triggerButtonHidden />
-            <ElfDialogForm isOpen={isElfDialogOpen} setIsOpen={setIsElfDialogOpen} />
+            <ElfDialogForm isOpen={isElfDialogOpen} setIsOpen={setIsElfDialogOpen} triggerButtonHidden />
+            <PostCreationDialog isOpen={isPostDialogOpen} setIsOpen={setIsPostDialogOpen} triggerButtonHidden />
         </>
     );
 };
