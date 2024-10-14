@@ -23,7 +23,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentImage, setCurrentImage] = useState(0);
     const { toast } = useToast();
     const { clerkUser } = useAppContext();
-    const images = ["/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600", "/placeholder.svg?height=400&width=600"];
+    const images = ["", "", ""];
 
     const nextImage = () => {
         setCurrentImage(prev => (prev + 1) % images.length);
@@ -64,7 +64,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         <Card className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="w-12 h-12">
-                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt={post?.elfeName || "lutin anonyme"} />
+                    <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
                     <AvatarFallback>
                         {post?.elfeName
                             ? post.elfeName
@@ -92,11 +92,12 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         height={400}
                         width={600}
                         style={{ objectFit: "cover", maxHeight: 400 }}
+                        className="bg-slate-200/50"
                     />
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
                         onClick={prevImage}
                         aria-label="image précédente"
                     >
@@ -105,7 +106,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white hover:bg-black/70"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
                         onClick={nextImage}
                         aria-label="image suivante"
                     >

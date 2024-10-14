@@ -62,11 +62,11 @@ export default function Navbar() {
                                         <Avatar className="w-12 h-12">
                                             <AvatarImage
                                                 className="rounded-full"
-                                                src={userProfile?.avatarUrl ?? "/placeholder.svg?height=40&width=40"}
-                                                alt={userProfile?.username ?? clerkUser?.username ?? "?"}
+                                                src={userProfile?.avatarUrl}
+                                                alt={userProfile?.username ?? clerkUser?.fullName ?? "?"}
                                             />
                                             <AvatarFallback>
-                                                {(userProfile?.username ?? clerkUser?.username ?? "?")
+                                                {(userProfile?.username ?? clerkUser?.fullName ?? "?")
                                                     .split(" ")
                                                     .map(name => name[0])
                                                     .join("")

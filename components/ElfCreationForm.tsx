@@ -2,18 +2,20 @@ import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { checkElfSlugIsAvailable, createElf, updateElfPhoto } from "@/lib/firebase";
 import { kebabCase } from "lodash";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Lock, LockOpen, Upload, X } from "lucide-react";
 import { useState } from "react";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
 import { Switch } from "./ui/switch";
 
 export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const [nickname, setNickname] = useState<string>("");
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-    const [isPublic, setIsPublic] = useState<boolean>(false);
+    const [isPublic, setIsPublic] = useState<boolean>(true);
     const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false);
     const { toast } = useToast();
     const { clerkUser, loadUserProfile } = useAppContext();
@@ -70,7 +72,8 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
             await createElf(clerkUser?.id, {
                 slug,
                 name: nickname,
-                isPrivate: !isPublic
+                isPrivate: !isPublic,
+                createdAt: new Date()
             });
         } catch (error) {
             console.error(error);
@@ -92,7 +95,7 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="nickname">Nom du lutin</Label>
-                <Input id="nickname" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Enter your nickname" required />
+                <Input id="nickname" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Nom du lutin" required />
             </div>
             <div className="space-y-2">
                 <Label>Photo du lutin</Label>
@@ -113,10 +116,26 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
                     </div>
                 )}
             </div>
-            <div className="flex items-center space-x-2">
-                <Switch id="public-profile" checked={isPublic} onCheckedChange={setIsPublic} />
-                <Label htmlFor="public-profile">Les publications de mon lutin seront publiques</Label>
+            <Separator />
+            <div className="bg-slate-100/70 p-4 rounded-md">
+                <div className="pb-2">
+                    <Alert variant={isPublic ? "info" : "warning"}>
+                        {isPublic ? <LockOpen className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                        <AlertTitle className="font-bold">Soit prudent !</AlertTitle>
+                        <AlertDescription>
+                            {isPublic
+                                ? "La totalité des publications de ton lutin seront accessibles à tous !"
+                                : "Seuls les abonnés de ton lutin pourront voir tes publications. C'est dommage non ?"}
+                        </AlertDescription>
+                    </Alert>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Switch id="public-profile" checked={isPublic} onCheckedChange={value => setIsPublic(!isPublic)} />
+                    <Label htmlFor="public-profile">Je souhaite que mes publications soient publiques</Label>
+                </div>
             </div>
+            <Separator />
+
             <Button type="submit" className="w-full" disabled={isCreatingProfile} onClick={handleSubmit}>
                 {isCreatingProfile ? (
                     <>

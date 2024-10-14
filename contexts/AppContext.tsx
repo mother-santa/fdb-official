@@ -53,10 +53,6 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         }
     }, [userProfile, elves]);
 
-    useEffect(() => {
-        console.log(currentElf);
-    }, [currentElf]);
-
     return (
         <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf }}>
             {children}

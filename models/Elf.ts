@@ -7,4 +7,5 @@ export interface Elf {
     ownerId: string;
     isPrivate: boolean;
     dailyScore: number;
+    createdAt: Date;
 }

@@ -78,8 +78,8 @@ export const ProfileCreationCard = () => {
                 slug,
                 username: nickname,
                 email: clerkUser.emailAddresses[0].emailAddress,
-                termsAccepted: acceptTerms
-                // communicationPreferences: {
+                termsAccepted: acceptTerms,
+                createdAt: new Date() // communicationPreferences: {
                 //     notificationEmails: true,
                 //     newsletterEmails: true,
                 //     partnerEmails: true

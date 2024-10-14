@@ -13,4 +13,5 @@ export interface UserProfile {
     preferredTheme: "light" | "dark";
     currentElfId: string;
     avatarUrl: string;
+    createdAt: Date;
 }

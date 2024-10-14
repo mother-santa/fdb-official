@@ -16,12 +16,12 @@ export const FAB = () => {
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
                 <DialogTrigger asChild>
                     <Button
-                        className="fixed right-4 bottom-4 rounded-full w-14 h-14 shadow-lg"
+                        className="fixed right-4 bottom-4 rounded-full w-14 h-14 shadow-lg bg-slate-500"
                         size="icon"
-                        aria-label="Create new item"
+                        aria-label="Créer une publication"
                         onClick={() => setIsOpen(true)}
                     >
-                        <Pen className="h-6 w-6" />
+                        <Pen className="h-6 w-6 " />
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
