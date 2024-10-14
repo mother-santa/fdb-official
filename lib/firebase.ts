@@ -79,6 +79,7 @@ export const createElf = async (userId: string, data: Partial<Elf>) => {
             },
             { merge: true }
         );
+        await updateUserProfile(userId, { currentElfId: data.slug });
     } catch (error) {
         console.error("Error creating elf:", error);
         return null;
