@@ -104,7 +104,7 @@ export const ProfileCreationCard = () => {
     return (
         clerkUser &&
         !userProfile && (
-            <Card className="w-full max-w-md mx-auto" variant="outline">
+            <Card className="w-full max-w-md mx-auto">
                 <CardHeader>
                     <CardTitle>Remplis ton profil</CardTitle>
                     <CardDescription>Personnalise ton compte pour profiter pleinement de l'application.</CardDescription>
