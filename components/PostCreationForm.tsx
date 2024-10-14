@@ -14,7 +14,6 @@ import { useCallback, useRef, useState } from "react";
 export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const { currentElf, elves } = useAppContext();
     if (!currentElf) return null;
-    const [, setIsFormOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<Elf>(currentElf ?? elves[0]);
     const [description, setDescription] = useState("");
     const [playingVideo, setPlayingVideo] = useState<number | null>(null);
@@ -51,7 +50,7 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
         e.preventDefault();
         // Here you would typically send the data to your backend
         console.log("Submitting:", { user: currentUser, description, files });
-        setIsFormOpen(false);
+        setIsOpen(false);
         setDescription("");
         setFiles([]);
     };
@@ -179,7 +178,7 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 </Popover>
             </div>
             <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setIsFormOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                     Annuler
                 </Button>
                 <Button type="submit">Enregistrer</Button>
