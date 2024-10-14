@@ -20,7 +20,6 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
     const [isCreatingProfile, setIsCreatingProfile] = useState<boolean>(false);
     const { toast } = useToast();
     const { clerkUser, loadUserProfile } = useAppContext();
-
     const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {

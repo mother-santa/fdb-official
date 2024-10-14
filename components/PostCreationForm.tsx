@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAppContext } from "@/contexts";
 import { Elf } from "@/models";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { ChevronDown, Smile, Trash2 } from "lucide-react";
-import { useCallback, useState } from "react";
+import { ChevronDown, Pause, Play, Smile, Trash2 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
 
 export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
     const { currentElf, elves } = useAppContext();
@@ -17,21 +17,29 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
     const [, setIsFormOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<Elf>(currentElf ?? elves[0]);
     const [description, setDescription] = useState("");
-    const [files, setFiles] = useState<File[]>([]);
+    const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+    type FileWithPreview = File & { preview: string };
+    const [files, setFiles] = useState<FileWithPreview[]>([]);
+
+    const videoRefs = useRef<{ [key: number]: HTMLVideoElement }>({});
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
-            setFiles(prevFiles => [...prevFiles, ...Array.from(e.target.files || [])]);
+            const newFiles = Array.from(e.target.files).map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
+            setFiles(prevFiles => [...prevFiles, ...newFiles]);
         }
     };
 
     const handleDeleteFile = (index: number) => {
         setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
+        if (playingVideo === index) {
+            setPlayingVideo(null);
+        }
     };
 
     const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const droppedFiles = Array.from(e.dataTransfer.files);
+        const droppedFiles = Array.from(e.dataTransfer.files).map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
         setFiles(prevFiles => [...prevFiles, ...droppedFiles]);
     }, []);
 
@@ -50,6 +58,22 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
 
     const handleEmojiClick = (emojiData: EmojiClickData) => {
         setDescription(prev => prev + emojiData.emoji);
+    };
+
+    const toggleVideoPlay = (index: number) => {
+        const video = videoRefs.current[index];
+        if (video) {
+            if (playingVideo === index) {
+                video.pause();
+                setPlayingVideo(null);
+            } else {
+                if (playingVideo !== null) {
+                    videoRefs.current[playingVideo]?.pause();
+                }
+                video.play();
+                setPlayingVideo(index);
+            }
+        }
     };
 
     return (
@@ -106,8 +130,28 @@ export const PostCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                     {files.map((file, index) => (
                         <div key={index} className="relative group aspect-square">
-                            <img src={URL.createObjectURL(file)} alt={`Uploaded file ${index + 1}`} className="w-full h-full object-cover rounded-md" />
+                            {file.type.startsWith("image/") ? (
+                                <img src={file.preview} alt={`Uploaded file ${index + 1}`} className="w-full h-full object-cover rounded-md" />
+                            ) : (
+                                <video
+                                    ref={el => {
+                                        if (el) videoRefs.current[index] = el;
+                                    }}
+                                    src={file.preview}
+                                    className="w-full h-full object-cover rounded-md"
+                                />
+                            )}
                             <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-md flex items-center justify-center">
+                                {file.type.startsWith("video/") && (
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleVideoPlay(index)}
+                                        className="text-white bg-blue-500 p-2 rounded-full hover:bg-blue-600 transition-colors mr-2"
+                                        aria-label={playingVideo === index ? "Pause video" : "Play video"}
+                                    >
+                                        {playingVideo === index ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => handleDeleteFile(index)}
