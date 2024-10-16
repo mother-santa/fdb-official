@@ -31,9 +31,9 @@ export const PostCreationForm = ({
     const [files, setFiles] = useState<FileWithPreview[]>([]);
 
     type FileWithPreview = File & { preview: string };
-    if (!currentElf) return null;
-
     const videoRefs = useRef<{ [key: number]: HTMLVideoElement }>({});
+
+    if (!currentElf) return null;
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
