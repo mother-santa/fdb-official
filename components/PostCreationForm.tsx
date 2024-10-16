@@ -33,8 +33,6 @@ export const PostCreationForm = ({
     type FileWithPreview = File & { preview: string };
     const videoRefs = useRef<{ [key: number]: HTMLVideoElement }>({});
 
-    if (!currentElf) return null;
-
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files).map(file => Object.assign(file, { preview: URL.createObjectURL(file) }));
@@ -58,6 +56,8 @@ export const PostCreationForm = ({
     const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
     }, []);
+
+    if (!currentElf) return null;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
