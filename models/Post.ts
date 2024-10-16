@@ -1,9 +1,14 @@
+export interface PostItem {
+    type: "image" | "video";
+    url: string;
+}
+
 export interface Post {
     id: string;
     elfId: string;
     elfeName: string;
     elfeAvatarUrl: string;
-    imageUrl: string;
+    assets: PostItem[];
     description: string;
     likeCount: number;
     likedByUserIds: string[];

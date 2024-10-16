@@ -3,7 +3,6 @@
 import { useAppContext } from "@/contexts";
 import { Pen } from "lucide-react";
 import { useState } from "react";
-import { ElfCreationForm } from "./ElfCreationForm";
 import { PostCreationForm } from "./PostCreationForm";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
@@ -18,8 +17,8 @@ export const PostCreationDialog = ({
     triggerButtonHidden?: boolean;
 }) => {
     const { currentElf } = useAppContext();
+    const [isNewElfOpen, setIsNewElfOpen] = useState(false);
     if (!currentElf) return null;
-    const [isNewUserFormOpen, setIsNewUserFormOpen] = useState(false);
     return (
         <>
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -40,16 +39,7 @@ export const PostCreationDialog = ({
                         <DialogTitle>Encore une bêtise ?</DialogTitle>
                         <DialogDescription>Allez, fais nous profiter !</DialogDescription>
                     </DialogHeader>
-                    <PostCreationForm setIsOpen={setIsOpen} isNewUserFormOpen={isNewUserFormOpen} setIsNewUserFormOpen={setIsNewUserFormOpen} />
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isNewUserFormOpen} onOpenChange={setIsNewUserFormOpen}>
-                <DialogContent className="sm:max-w-[425px]">
-                    <DialogHeader>
-                        <DialogTitle>Add New User</DialogTitle>
-                    </DialogHeader>
-                    <ElfCreationForm setIsOpen={setIsNewUserFormOpen} />
+                    <PostCreationForm setIsOpen={setIsOpen} isNewElfOpen={isNewElfOpen} setIsNewElfOpen={setIsNewElfOpen} />
                 </DialogContent>
             </Dialog>
         </>

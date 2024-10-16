@@ -81,7 +81,7 @@ export const ElfCreationForm = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) =>
             setIsCreatingProfile(false);
         }
 
-        setIsOpen(false);
+        // setIsOpen(false);
 
         toast({
             title: "Bravo !!!",

@@ -169,7 +169,8 @@ export const createPost = async (userId: string, data: Partial<Post>): Promise<P
         const postCollection = collection(db, POST_COLLECTION);
         const newPost = await addDoc(postCollection, {
             ownerId: userId,
-            ...data
+            ...data,
+            createdAt: new Date()
         });
         return { id: newPost.id, ...data } as Post;
     } catch (error) {
@@ -179,12 +180,32 @@ export const createPost = async (userId: string, data: Partial<Post>): Promise<P
 };
 
 export const listenToPublicPosts = (onChange: (posts: Post[]) => void) => {
-    const postCollection = collection(db, POST_COLLECTION);
-    const q = query(postCollection, where("isPublic", "==", true));
-    const unsubscribe = onSnapshot(q, snapshot => {
-        const posts: Post[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Post));
+    const elfCollection = collection(db, ELF_COLLECTION);
+    const publicElvesQuery = query(elfCollection, where("isPrivate", "==", false));
+
+    const unsubscribe = onSnapshot(publicElvesQuery, async elfSnapshot => {
+        const publicElfIds = elfSnapshot.docs.map(doc => doc.id);
+
+        if (publicElfIds.length === 0) {
+            onChange([]);
+            return;
+        }
+
+        const postCollection = collection(db, POST_COLLECTION);
+        const postQuery = query(postCollection, where("ownerId", "in", publicElfIds));
+
+        const postSnapshot = await getDocs(postQuery);
+        const posts: Post[] = postSnapshot.docs.map(
+            doc =>
+                ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Post)
+        );
+
         onChange(posts);
     });
+
     return unsubscribe;
 };
 
@@ -211,6 +232,20 @@ export const fetchUserPosts = async (userId: string): Promise<Post[]> => {
     }
 };
 
+export const fetchPost = async (postId: string): Promise<Post | null> => {
+    try {
+        const postDoc = await getDoc(doc(db, POST_COLLECTION, postId));
+        if (postDoc.exists()) {
+            return postDoc.data() as Post;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching post:", error);
+        return null;
+    }
+};
+
 export const updatePost = async (postId: string, data: Partial<Post>) => {
     try {
         const postDoc = doc(db, POST_COLLECTION, postId);
@@ -226,5 +261,21 @@ export const deletePost = async (postId: string) => {
         await deleteDoc(postDoc);
     } catch (error) {
         console.error("Error deleting post:", error);
+    }
+};
+
+export const uploadPostAssets = async (userId: string, elfId: string, postId: string, files: File[]) => {
+    try {
+        for (const file of files) {
+            const storageRef = ref(storage, `profiles/${userId}/elves/${elfId}/posts/${postId}/assets`);
+            const uploadResult = await uploadBytes(storageRef, file);
+            const url = await getDownloadURL(uploadResult.ref);
+            const post = await fetchPost(postId);
+            if (post) {
+                await updatePost(postId, { assets: [...post.assets, { type: file.type.startsWith("image/") ? "image" : "video", url }] });
+            }
+        }
+    } catch (error) {
+        console.error("Error updating user photo:", error);
     }
 };

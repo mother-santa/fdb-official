@@ -60,8 +60,10 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         fetchPosts();
     }, [userProfile, elves]);
 
+    console.log(posts);
+
     return (
-        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf }}>
+        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf, posts }}>
             {children}
         </AppContext.Provider>
     );

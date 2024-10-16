@@ -7,6 +7,7 @@ import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
+import { Timestamp } from "firebase/firestore";
 import { ChevronLeft, ChevronRight, MessageSquare, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
@@ -20,17 +21,20 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post, className = "" }: PostCardProps) => {
-    const [currentImage, setCurrentImage] = useState(0);
+    const [currentAsset, setCurrentAsset] = useState(0);
     const { toast } = useToast();
     const { clerkUser } = useAppContext();
-    const images = ["", "", ""];
+
+    if (!post) {
+        return null;
+    }
 
     const nextImage = () => {
-        setCurrentImage(prev => (prev + 1) % images.length);
+        setCurrentAsset(prev => (prev + 1) % post.assets.length);
     };
 
     const prevImage = () => {
-        setCurrentImage(prev => (prev - 1 + images.length) % images.length);
+        setCurrentAsset(prev => (prev - 1 + post.assets.length) % post.assets.length);
     };
 
     const displayNotConnectedToast = () => {
@@ -60,6 +64,18 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         }
     };
 
+    const formatCreatedAt = (createdAt: Timestamp | Date | null | undefined) => {
+        if (createdAt instanceof Timestamp) {
+            return formatDistanceToNow(createdAt.toDate(), { addSuffix: true, locale: frLocale });
+        } else if (createdAt instanceof Date && !isNaN(createdAt.getTime())) {
+            return formatDistanceToNow(createdAt, { addSuffix: true, locale: frLocale });
+        } else {
+            return "Date inconnue";
+        }
+    };
+
+    console.log(currentAsset);
+
     return (
         <Card className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row items-center gap-4">
@@ -78,7 +94,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                 </Avatar>
                 <div className="flex flex-col">
                     <h2 className="text-lg font-semibold">{post?.elfeName || "lutin anonyme"}</h2>
-                    <p className="text-sm text-muted-foreground">{formatDistanceToNow(post?.createdAt || new Date(), { addSuffix: true, locale: frLocale })}</p>
+                    <p className="text-sm text-muted-foreground">{formatCreatedAt(post.createdAt)}</p>{" "}
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -86,32 +102,64 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <h3 className="text-xl font-semibold">{post?.description || "Pas de contenu"}</h3>
                 </div>
                 <div className="relative w-full h-64 rounded-lg overflow-hidden">
-                    <Image
+                    {post.assets.map((asset, index) => {
+                        if (index === currentAsset) {
+                            if (asset.type === "image") {
+                                return (
+                                    <Image
+                                        key={index}
+                                        src={asset.url}
+                                        alt={`photo - ${post?.description || "Pas de contenu"}`}
+                                        height={400}
+                                        width={600}
+                                        style={{ objectFit: "cover", maxHeight: 400 }}
+                                        className="bg-slate-200/50"
+                                    />
+                                );
+                            }
+                            if (asset.type === "video") {
+                                return (
+                                    <video
+                                        key={index}
+                                        src={asset.url}
+                                        playsInline
+                                        title={`video - ${post?.description || "Pas de contenu"}`}
+                                        className="bg-slate-200/50 object-cover"
+                                    />
+                                );
+                            }
+                        }
+                    })}
+                    {/* <Image
                         src={images[currentImage]}
                         alt={`${post?.description || "Pas de contenu"} photo ${currentImage + 1}`}
                         height={400}
                         width={600}
                         style={{ objectFit: "cover", maxHeight: 400 }}
                         className="bg-slate-200/50"
-                    />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
-                        onClick={prevImage}
-                        aria-label="image précédente"
-                    >
-                        <ChevronLeft className="h-6 w-6" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
-                        onClick={nextImage}
-                        aria-label="image suivante"
-                    >
-                        <ChevronRight className="h-6 w-6" />
-                    </Button>
+                    /> */}
+                    {post.assets.length > 1 && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
+                                onClick={prevImage}
+                                aria-label="image précédente"
+                            >
+                                <ChevronLeft className="h-6 w-6" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
+                                onClick={nextImage}
+                                aria-label="image suivante"
+                            >
+                                <ChevronRight className="h-6 w-6" />
+                            </Button>
+                        </>
+                    )}
                 </div>
             </CardContent>
             <CardFooter className="flex justify-between">

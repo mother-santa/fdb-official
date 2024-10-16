@@ -6,7 +6,7 @@ import { ElfDialogForm } from "./ElfDialogForm";
 import { PostCreationDialog } from "./PostCreationDialog";
 
 export const FAB = () => {
-    const { userProfile, currentElf } = useAppContext();
+    const { currentElf } = useAppContext();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isPostDialogOpen, setIsPostDialogOpen] = useState<boolean>(false);
 
