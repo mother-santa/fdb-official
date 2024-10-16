@@ -2,7 +2,7 @@ import { ELF_COLLECTION, POST_COLLECTION, USER_PROFILE_COLLECTION } from "@/cons
 import { Elf, Post, UserProfile } from "@/models";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { addDoc, collection, deleteDoc, doc, Firestore, getDoc, getDocs, getFirestore, onSnapshot, query, setDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, Firestore, getDoc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
 
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -192,8 +192,11 @@ export const listenToPublicPosts = (onChange: (posts: Post[]) => void) => {
         }
 
         const postCollection = collection(db, POST_COLLECTION);
-        const postQuery = query(postCollection, where("ownerId", "in", publicElfIds));
-
+        const postQuery = query(
+            postCollection,
+            where("ownerId", "in", publicElfIds), // Filters posts where the ownerId is in the publicElfIds list
+            orderBy("createdAt", "desc") // Orders the posts by the createdAt field in descending order
+        );
         const postSnapshot = await getDocs(postQuery);
         const posts: Post[] = postSnapshot.docs.map(
             doc =>

@@ -9,7 +9,7 @@ import { useAppContext } from "@/contexts";
 export default function Home() {
     const { posts } = useAppContext();
     return (
-        <Container className="max-w-lg flex flex-col gap-2">
+        <Container className="max-w-lg flex flex-col gap-2 pt-24">
             <ProfileCreationCard />
             {posts.map(post => (
                 <PostCard key={post.id} post={post} />
