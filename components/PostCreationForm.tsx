@@ -247,7 +247,7 @@ export const PostCreationForm = ({
                     <DialogHeader>
                         <DialogTitle>Add New Elf</DialogTitle>
                     </DialogHeader>
-                    <ElfCreationForm setIsOpen={isNewElfOpen} />
+                    <ElfCreationForm setIsOpen={setIsNewElfOpen} />
                 </DialogContent>
             </Dialog>
         </>
