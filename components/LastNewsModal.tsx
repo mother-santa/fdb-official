@@ -79,7 +79,7 @@ export const LastNewsModal = () => {
     return (
         isOpen && (
             <Dialog open={isOpen} onOpenChange={() => {}}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Nos dernières infos</DialogTitle>
                         <DialogDescription>Quelques infos depuis votre derniere connexion</DialogDescription>
