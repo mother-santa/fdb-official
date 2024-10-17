@@ -56,22 +56,22 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         };
     }, []);
 
-    // useEffect(() => {
-    //     let timer: NodeJS.Timeout;
-    //     if (isVisible) {
-    //         timer = setTimeout(() => {
-    //             const count = new CountUp(key, post?.likedByUserIds?.length || 0);
-    //             count.start();
-    //         }, 100); // Délai de 500ms
-    //     } else {
-    //         const count = new CountUp(key, 0);
-    //         count.start();
-    //     }
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isVisible) {
+            timer = setTimeout(() => {
+                // const count = new CountUp(key, post?.likedByUserIds?.length || 0);
+                // count.start();
+            }, 100); // Délai de 500ms
+        } else {
+            const count = new CountUp(key, 0);
+            count.start();
+        }
 
-    //     return () => {
-    //         if (timer) clearTimeout(timer);
-    //     };
-    // }, [isVisible]);
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
+    }, [isVisible]);
 
     if (!post) {
         return null;
