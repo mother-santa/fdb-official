@@ -180,6 +180,23 @@ export const createPost = async (userId: string, data: Partial<Post>): Promise<P
     }
 };
 
+export const listenToPosts = (onChange: (posts: Post[]) => void) => {
+    const postCollection = collection(db, POST_COLLECTION);
+    const postQuery = query(postCollection, orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(postQuery, async postSnapshot => {
+        const posts: Post[] = postSnapshot.docs.map(
+            doc =>
+                ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Post)
+        );
+        onChange(posts);
+    });
+
+    return unsubscribe;
+};
+
 export const listenToPublicPosts = (onChange: (posts: Post[]) => void) => {
     const elfCollection = collection(db, ELF_COLLECTION);
     const publicElvesQuery = query(elfCollection, where("isPrivate", "==", false));
@@ -259,6 +276,22 @@ export const updatePost = async (postId: string, data: Partial<Post>) => {
     }
 };
 
+export const updatePostLike = async (userId: string, postId: string) => {
+    try {
+        const post = await fetchPost(postId);
+        if (!post) {
+            console.error("Invalid post id provided", postId);
+            return;
+        }
+        const likes = post.likedByUserIds ?? [];
+        const isLiked = likes.includes(userId) ?? false;
+        const updatedLikes = isLiked ? likes.filter(id => id !== userId) : [...likes, userId];
+        await updatePost(postId, { likedByUserIds: updatedLikes });
+    } catch (error) {
+        console.error("Error updating post like:", error);
+    }
+};
+
 export const deletePost = async (postId: string) => {
     try {
         const postDoc = doc(db, POST_COLLECTION, postId);
@@ -292,23 +325,8 @@ export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> 
     if (!userProfile) {
         return [];
     }
-    console.log("userProfile", userProfile.readNewsAt);
     const lastNewsCollection = collection(db, LAST_NEWS_COLLECTION);
     const q = query(lastNewsCollection, where("createdAt", ">", userProfile.readNewsAt ?? new Date("01-01-1970")), orderBy("createdAt", "asc"));
-    const querySnapshot = await getDocs(q);
-    const lastNews: LastNews[] = [];
-    querySnapshot.forEach(doc => {
-        const newsData = doc.data();
-        if (newsData) {
-            lastNews.push({ id: doc.id, ...newsData } as LastNews);
-        }
-    });
-    return lastNews;
-};
-
-export const fetchLastNews = async (): Promise<LastNews[]> => {
-    const lastNewsCollection = collection(db, LAST_NEWS_COLLECTION);
-    const q = query(lastNewsCollection, orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
     const lastNews: LastNews[] = [];
     querySnapshot.forEach(doc => {

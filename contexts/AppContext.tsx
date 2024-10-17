@@ -1,6 +1,6 @@
 "use client";
 
-import { fetchUserElves, fetchUserProfile, listenToPublicPosts, updateUserProfile } from "@/lib/firebase";
+import { fetchUserElves, fetchUserProfile, listenToPosts, updateUserProfile } from "@/lib/firebase";
 import { AppContextType, Elf, Post, UserProfile } from "@/models";
 import { useAuth, useUser } from "@clerk/nextjs";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
@@ -59,7 +59,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             updateUserProfile(clerkUser?.id ?? "", { currentElfId: elves[0].id });
         }
         const fetchPosts = async () => {
-            const unsubscribe = listenToPublicPosts(posts => {
+            const unsubscribe = listenToPosts(posts => {
                 setPosts(posts);
                 setIsLoadingPosts(false);
             });

@@ -2,6 +2,7 @@
 
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
+import { updatePostLike } from "@/lib/firebase";
 import { Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
@@ -24,6 +25,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentAsset, setCurrentAsset] = useState(0);
     const { toast } = useToast();
     const { clerkUser } = useAppContext();
+    const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
 
     if (!post) {
         return null;
@@ -55,6 +57,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             displayNotConnectedToast();
             return;
         }
+        updatePostLike(clerkUser.id, post.id);
     };
 
     const handleCommentClick = () => {
@@ -128,14 +131,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                             }
                         }
                     })}
-                    {/* <Image
-                        src={images[currentImage]}
-                        alt={`${post?.description || "Pas de contenu"} photo ${currentImage + 1}`}
-                        height={400}
-                        width={600}
-                        style={{ objectFit: "cover", maxHeight: 400 }}
-                        className="bg-slate-200/50"
-                    /> */}
                     {post.assets.length > 1 && (
                         <>
                             <Button
@@ -163,11 +158,11 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             <CardFooter className="flex justify-between">
                 <div className="flex items-center gap-2"></div>
                 <div className="flex gap-4">
-                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary" onClick={handleLikeClick}>
+                    <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
-                        <span className="text-sm">Like</span>
+                        <span className="text-sm">Like {post.likedByUserIds?.length > 0 ? "(" + post.likedByUserIds?.length + ")" : ""}</span>
                     </button>
-                    <button className="flex items-center gap-1 text-muted-foreground hover:text-primary" onClick={handleCommentClick}>
+                    <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
                         <span className="text-sm">Comment</span>
                     </button>
