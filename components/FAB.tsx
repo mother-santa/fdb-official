@@ -6,9 +6,11 @@ import { ElfDialogForm } from "./ElfDialogForm";
 import { PostCreationDialog } from "./PostCreationDialog";
 
 export const FAB = () => {
-    const { currentElf } = useAppContext();
+    const { currentElf, clerkUser } = useAppContext();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isPostDialogOpen, setIsPostDialogOpen] = useState<boolean>(false);
+
+    if (!clerkUser) return null;
 
     return currentElf ? (
         <PostCreationDialog isOpen={isPostDialogOpen} setIsOpen={setIsPostDialogOpen} />
