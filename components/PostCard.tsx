@@ -213,7 +213,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
-                        {!!post.likedByUserIds?.length && (
+                        {!!post.likedByUserIds?.length && !isLikeCountHidden && (
                             <>
                                 (<span id={key}></span>)
                             </>
