@@ -29,13 +29,11 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [isVisible, setIsVisible] = useState(false);
-    const [isLikeCountHidden, setIsLikeCountHidden] = useState(false);
     const [odLikeCount, setOldLikeCount] = useState(0);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
 
     useEffect(() => {
-        setIsLikeCountHidden(!post?.likedByUserIds?.length);
         const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount });
         count.start();
         setTimeout(() => {
@@ -105,7 +103,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     };
 
     const handleLikeClick = () => {
-        setIsLikeCountHidden(true);
         if (!clerkUser) {
             displayNotConnectedToast();
             return;
@@ -214,7 +211,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
-                        {!!post.likedByUserIds?.length && !isLikeCountHidden && (
+                        {!!post.likedByUserIds?.length && (
                             <>
                                 (<span id={key}></span>)
                             </>
