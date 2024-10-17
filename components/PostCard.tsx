@@ -30,7 +30,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [isVisible, setIsVisible] = useState(false);
     const [showLikes, setShowLikes] = useState(false);
-    const [likes, setLikes] = useState(50);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
 

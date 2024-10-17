@@ -25,7 +25,7 @@ export const LastNewsModal = () => {
             setNewsData(data);
         };
         fetchData();
-    }, []);
+    }, [clerkUser?.id]);
 
     useEffect(() => {
         if (newsData.length) {
