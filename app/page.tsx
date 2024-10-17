@@ -8,6 +8,14 @@ import { ProfileCreationCard } from "@/components/ProfileCreationCard";
 import { TestWarning } from "@/components/TestWarning";
 import Container from "@/components/ui/container";
 import { useAppContext } from "@/contexts";
+import { Viewport } from "next";
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false
+};
 
 export default function Home() {
     const { posts, clerkUser } = useAppContext();
