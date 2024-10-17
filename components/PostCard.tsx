@@ -34,7 +34,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const key = kebabCase(post?.description + "likes");
 
     useEffect(() => {
-        const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount });
+        const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount, prefix: "(", suffix: ")" });
         count.start();
         setTimeout(() => {
             setOldLikeCount(post?.likedByUserIds?.length || 0);
@@ -211,11 +211,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
-                        {!!post.likedByUserIds?.length && (
-                            <>
-                                (<span id={key}></span>)
-                            </>
-                        )}
+                        {!!post.likedByUserIds?.length && <span id={key}></span>}
                     </button>
                     <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
