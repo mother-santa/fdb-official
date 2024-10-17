@@ -56,22 +56,22 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         };
     }, []);
 
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (isVisible) {
-            timer = setTimeout(() => {
-                const count = new CountUp(key, post?.likedByUserIds?.length || 0);
-                count.start();
-            }, 100); // Délai de 500ms
-        } else {
-            const count = new CountUp(key, 0);
-            count.start();
-        }
+    // useEffect(() => {
+    //     let timer: NodeJS.Timeout;
+    //     if (isVisible) {
+    //         timer = setTimeout(() => {
+    //             const count = new CountUp(key, post?.likedByUserIds?.length || 0);
+    //             count.start();
+    //         }, 100); // Délai de 500ms
+    //     } else {
+    //         const count = new CountUp(key, 0);
+    //         count.start();
+    //     }
 
-        return () => {
-            if (timer) clearTimeout(timer);
-        };
-    }, [isVisible]);
+    //     return () => {
+    //         if (timer) clearTimeout(timer);
+    //     };
+    // }, [isVisible]);
 
     if (!post) {
         return null;
@@ -207,7 +207,11 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
-                        {post.likedByUserIds?.length && <span id={key}></span>}
+                        {post.likedByUserIds?.length && (
+                            <>
+                                (<span id={key}></span>)
+                            </>
+                        )}
                     </button>
                     <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
