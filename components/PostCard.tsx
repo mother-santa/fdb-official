@@ -29,6 +29,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [isVisible, setIsVisible] = useState(false);
+    const [isLikeCountHidden, setIsLikeCountHidden] = useState(false);
     const [odLikeCount, setOldLikeCount] = useState(0);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
@@ -39,6 +40,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         setTimeout(() => {
             setOldLikeCount(post?.likedByUserIds?.length || 0);
         }, 400);
+        setIsLikeCountHidden(!post?.likedByUserIds?.length);
     }, [post?.likedByUserIds]);
 
     useEffect(() => {
@@ -211,7 +213,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                     <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
                         <ThumbsUp className="w-5 h-5" />
                         <span className="text-sm">Like</span>
-                        {post.likedByUserIds?.length && (
+                        {!!post.likedByUserIds?.length && (
                             <>
                                 (<span id={key}></span>)
                             </>
