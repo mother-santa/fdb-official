@@ -14,4 +14,5 @@ export interface UserProfile {
     currentElfId: string;
     avatarUrl: string;
     createdAt: Date;
+    readNewsAt?: Date;
 }

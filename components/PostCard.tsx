@@ -74,8 +74,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         }
     };
 
-    console.log(currentAsset);
-
     return (
         <Card className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row items-center gap-4">

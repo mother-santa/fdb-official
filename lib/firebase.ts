@@ -1,5 +1,6 @@
-import { ELF_COLLECTION, POST_COLLECTION, USER_PROFILE_COLLECTION } from "@/constants";
+import { ELF_COLLECTION, LAST_NEWS_COLLECTION, POST_COLLECTION, USER_PROFILE_COLLECTION } from "@/constants";
 import { Elf, Post, UserProfile } from "@/models";
+import { LastNews } from "@/models/LastNews";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { addDoc, collection, deleteDoc, doc, Firestore, getDoc, getDocs, getFirestore, onSnapshot, orderBy, query, setDoc, where } from "firebase/firestore";
@@ -281,4 +282,40 @@ export const uploadPostAssets = async (userId: string, elfId: string, postId: st
     } catch (error) {
         console.error("Error updating user photo:", error);
     }
+};
+
+/**
+ * Last News Methods
+ */
+export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> => {
+    const userProfile = await fetchUserProfile(userId);
+    if (!userProfile) {
+        return [];
+    }
+    console.log("userProfile", userProfile.readNewsAt);
+    const lastNewsCollection = collection(db, LAST_NEWS_COLLECTION);
+    const q = query(lastNewsCollection, where("createdAt", ">", userProfile.readNewsAt ?? new Date("01-01-1970")), orderBy("createdAt", "asc"));
+    const querySnapshot = await getDocs(q);
+    const lastNews: LastNews[] = [];
+    querySnapshot.forEach(doc => {
+        const newsData = doc.data();
+        if (newsData) {
+            lastNews.push({ id: doc.id, ...newsData } as LastNews);
+        }
+    });
+    return lastNews;
+};
+
+export const fetchLastNews = async (): Promise<LastNews[]> => {
+    const lastNewsCollection = collection(db, LAST_NEWS_COLLECTION);
+    const q = query(lastNewsCollection, orderBy("createdAt", "desc"));
+    const querySnapshot = await getDocs(q);
+    const lastNews: LastNews[] = [];
+    querySnapshot.forEach(doc => {
+        const newsData = doc.data();
+        if (newsData) {
+            lastNews.push({ id: doc.id, ...newsData } as LastNews);
+        }
+    });
+    return lastNews;
 };
