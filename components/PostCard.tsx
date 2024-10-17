@@ -64,7 +64,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                 const count = new CountUp(key, post?.likedByUserIds?.length || 0);
                 count.start();
                 setShowLikes(true);
-            }, 500); // Délai de 500ms
+            }, 100); // Délai de 500ms
         } else {
             const count = new CountUp(key, 0);
             count.start();
