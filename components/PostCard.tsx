@@ -35,12 +35,12 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const key = kebabCase(post?.description + "likes");
 
     useEffect(() => {
+        setIsLikeCountHidden(!post?.likedByUserIds?.length);
         const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount });
         count.start();
         setTimeout(() => {
             setOldLikeCount(post?.likedByUserIds?.length || 0);
         }, 400);
-        setIsLikeCountHidden(!post?.likedByUserIds?.length);
     }, [post?.likedByUserIds]);
 
     useEffect(() => {
