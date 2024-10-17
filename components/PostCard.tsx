@@ -105,6 +105,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     };
 
     const handleLikeClick = () => {
+        setIsLikeCountHidden(true);
         if (!clerkUser) {
             displayNotConnectedToast();
             return;
