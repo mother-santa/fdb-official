@@ -29,7 +29,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [isVisible, setIsVisible] = useState(false);
-    const [showLikes, setShowLikes] = useState(false);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
 
@@ -63,12 +62,10 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             timer = setTimeout(() => {
                 const count = new CountUp(key, post?.likedByUserIds?.length || 0);
                 count.start();
-                setShowLikes(true);
             }, 100); // Délai de 500ms
         } else {
             const count = new CountUp(key, 0);
             count.start();
-            setShowLikes(false);
         }
 
         return () => {
@@ -207,13 +204,11 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             <CardFooter className="flex justify-between">
                 <div className="flex items-center gap-2"></div>
                 <div className="flex gap-4">
-                    {showLikes && (
-                        <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
-                            <ThumbsUp className="w-5 h-5" />
-                            <span className="text-sm">Like</span>
-                            <span id={key}>{post.likedByUserIds?.length > 0 ? "(" + post.likedByUserIds?.length + ")" : ""}</span>
-                        </button>
-                    )}
+                    <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
+                        <ThumbsUp className="w-5 h-5" />
+                        <span className="text-sm">Like</span>
+                        {post.likedByUserIds.length && <span id={key}></span>}
+                    </button>
                     <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
                         <span className="text-sm">Comment</span>
