@@ -29,12 +29,16 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [isVisible, setIsVisible] = useState(false);
+    const [odLikeCount, setOldLikeCount] = useState(0);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
 
     useEffect(() => {
-        const count = new CountUp(key, post?.likedByUserIds?.length || 0);
+        const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount });
         count.start();
+        setTimeout(() => {
+            setOldLikeCount(post?.likedByUserIds?.length || 0);
+        }, 400);
     }, [post?.likedByUserIds]);
 
     useEffect(() => {
@@ -64,8 +68,8 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                 // count.start();
             }, 100); // Délai de 500ms
         } else {
-            const count = new CountUp(key, 0);
-            count.start();
+            // const count = new CountUp(key, 0);
+            // count.start();
         }
 
         return () => {
