@@ -6,12 +6,14 @@ import { updatePostLike } from "@/lib/firebase";
 import { Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
+import { CountUp } from "countup.js";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
+import { kebabCase } from "lodash";
 import { ChevronLeft, ChevronRight, MessageSquare, ThumbsUp } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
@@ -26,6 +28,54 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { toast } = useToast();
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
+    const [isVisible, setIsVisible] = useState(false);
+    const [showLikes, setShowLikes] = useState(false);
+    const [likes, setLikes] = useState(50);
+    const cardRef = useRef(null);
+    const key = kebabCase(post?.description + "likes");
+
+    useEffect(() => {
+        const count = new CountUp(key, post?.likedByUserIds?.length || 0);
+        count.start();
+    }, [post?.likedByUserIds]);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsVisible(entry.isIntersecting);
+            },
+            { threshold: 0.1 }
+        );
+
+        if (cardRef.current) {
+            observer.observe(cardRef.current);
+        }
+
+        return () => {
+            if (cardRef.current) {
+                observer.unobserve(cardRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (isVisible) {
+            timer = setTimeout(() => {
+                const count = new CountUp(key, post?.likedByUserIds?.length || 0);
+                count.start();
+                setShowLikes(true);
+            }, 500); // Délai de 500ms
+        } else {
+            const count = new CountUp(key, 0);
+            count.start();
+            setShowLikes(false);
+        }
+
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
+    }, [isVisible]);
 
     if (!post) {
         return null;
@@ -78,7 +128,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     };
 
     return (
-        <Card className={`w-full max-w-md mx-auto ${className} !px-0`}>
+        <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row items-center gap-4">
                 <Avatar className="w-12 h-12">
                     <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
@@ -158,10 +208,13 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             <CardFooter className="flex justify-between">
                 <div className="flex items-center gap-2"></div>
                 <div className="flex gap-4">
-                    <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
-                        <ThumbsUp className="w-5 h-5" />
-                        <span className="text-sm">Like {post.likedByUserIds?.length > 0 ? "(" + post.likedByUserIds?.length + ")" : ""}</span>
-                    </button>
+                    {showLikes && (
+                        <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
+                            <ThumbsUp className="w-5 h-5" />
+                            <span className="text-sm">Like</span>
+                            <span id={key}>{post.likedByUserIds?.length > 0 ? "(" + post.likedByUserIds?.length + ")" : ""}</span>
+                        </button>
+                    )}
                     <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
                         <MessageSquare className="w-5 h-5" />
                         <span className="text-sm">Comment</span>

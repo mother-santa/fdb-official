@@ -73,69 +73,68 @@ export const LastNewsModal = () => {
             year: "numeric",
             month: "long",
             day: "numeric"
-        }).format(date.toDate());
+        }).format(date instanceof Timestamp ? date.toDate() : date);
     };
 
     return (
         isOpen && (
-            <div className="relative">
-                <Dialog open={isOpen} onOpenChange={() => {}}>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Nos dernières infos</DialogTitle>
-                            <DialogDescription>Quelques infos depuis votre derniere connexion</DialogDescription>
-                        </DialogHeader>
-                        <div className="mt-4">
-                            <div className="relative">
-                                <div ref={contentRef} className="overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-                                    <div
-                                        className="flex transition-transform duration-300 ease-in-out"
-                                        style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                                    >
-                                        {newsData.map((news, index) => (
-                                            <div key={news.id} className="w-full flex-shrink-0 p-4 relative min-h-[200px]">
-                                                <h3 className="text-lg font-semibold mb-2">
-                                                    {news.title} <span className="text-sm text-gray-400 m-2"> - le {formattedDate(news.createdAt)}</span>
-                                                </h3>
-                                                <p className="mb-12">{news.content}</p>
-                                                {index === newsData.length - 1 && (
-                                                    <Button className="absolute bottom-4 right-4" onClick={handleDismiss}>
-                                                        Ok
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
+            <Dialog open={isOpen} onOpenChange={() => {}}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Nos dernières infos</DialogTitle>
+                        <DialogDescription>Quelques infos depuis votre derniere connexion</DialogDescription>
+                    </DialogHeader>
+                    <div className="mt-4">
+                        <div className="relative">
+                            <div ref={contentRef} className="overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+                                <div
+                                    className="flex transition-transform duration-300 ease-in-out"
+                                    style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+                                >
+                                    {newsData.map((news, index) => (
+                                        <div key={news.id} className="w-full flex-shrink-0 p-4 relative min-h-[200px]">
+                                            <h3 className="text-lg font-semibold mb-2">
+                                                {news.title} <span className="text-sm text-gray-400 m-2"> - le {formattedDate(news.createdAt)}</span>
+                                            </h3>
+                                            <p className="mb-12">{news.content}</p>
+                                            {index === newsData.length - 1 && (
+                                                <Button className="absolute bottom-4 right-4" onClick={handleDismiss}>
+                                                    Ok
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
-                            <div className="flex justify-center mt-4">
-                                {newsData.length > 1 &&
-                                    newsData.map((_, index) => (
-                                        <div key={index} className={`h-2 w-2 rounded-full mx-1 ${index === currentSlide ? "bg-primary" : "bg-gray-300"}`} />
-                                    ))}
-                            </div>
                         </div>
-                    </DialogContent>
-                </Dialog>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10"
-                    onClick={handlePrevSlide}
-                    disabled={currentSlide === 0}
-                >
-                    <ChevronLeftIcon className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10"
-                    onClick={handleNextSlide}
-                    disabled={currentSlide === newsData.length - 1}
-                >
-                    <ChevronRightIcon className="h-4 w-4" />
-                </Button>
-            </div>
+                        <div className="flex justify-center mt-4">
+                            {newsData.length > 1 &&
+                                newsData.map((_, index) => (
+                                    <div key={index} className={`h-2 w-2 rounded-full mx-1 ${index === currentSlide ? "bg-primary" : "bg-gray-300"}`} />
+                                ))}
+                        </div>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className={`absolute -left-5 top-1/2 -translate-y-1/2 ${currentSlide === 0 ? "hidden" : ""}`}
+                        onClick={handlePrevSlide}
+                        disabled={currentSlide === 0}
+                    >
+                        <ChevronLeftIcon className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className={`absolute -right-5 top-1/2 -translate-y-1/2 z-10 ${currentSlide === newsData.length - 1 ? "hidden" : ""}`}
+                        onClick={handleNextSlide}
+                        disabled={currentSlide === newsData.length - 1}
+                        hidden={currentSlide < newsData.length - 1}
+                    >
+                        <ChevronRightIcon className="h-4 w-4" />
+                    </Button>
+                </DialogContent>
+            </Dialog>
         )
     );
 };
