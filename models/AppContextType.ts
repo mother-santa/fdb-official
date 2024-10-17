@@ -9,5 +9,6 @@ export interface AppContextType {
     posts: Post[];
     elves: Elf[];
     currentElf: Elf | null;
+    isLoadingPosts: boolean;
     loadUserProfile?: () => Promise<void>;
 }

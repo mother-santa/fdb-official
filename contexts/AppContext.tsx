@@ -14,7 +14,8 @@ const defaultValue: AppContextType = {
     posts: [],
     clerkUser: null,
     elves: [],
-    currentElf: null
+    currentElf: null,
+    isLoadingPosts: true
 };
 
 const AppContext = createContext(defaultValue);
@@ -26,6 +27,7 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     const [posts, setPosts] = useState<Post[]>([]);
     const [elves, setElves] = useState<Elf[]>([]);
     const [currentElf, setCurrentElf] = useState<Elf | null>(null);
+    const [isLoadingPosts, setIsLoadingPosts] = useState<boolean>(true);
 
     useEffect(() => {
         if (!isLoaded) {
@@ -59,16 +61,15 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         const fetchPosts = async () => {
             const unsubscribe = listenToPublicPosts(posts => {
                 setPosts(posts);
+                setIsLoadingPosts(false);
             });
             return () => unsubscribe();
         };
         fetchPosts();
     }, [userProfile, elves]);
 
-    console.log(posts);
-
     return (
-        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf, posts }}>
+        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf, posts, isLoadingPosts }}>
             {children}
         </AppContext.Provider>
     );
