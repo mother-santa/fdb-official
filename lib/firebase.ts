@@ -1,5 +1,5 @@
-import { ELF_COLLECTION, LAST_NEWS_COLLECTION, POST_COLLECTION, USER_PROFILE_COLLECTION } from "@/constants";
-import { Elf, Post, UserProfile } from "@/models";
+import { COMMENT_COLLECTION, ELF_COLLECTION, LAST_NEWS_COLLECTION, POST_COLLECTION, USER_PROFILE_COLLECTION } from "@/constants";
+import { Comment, Elf, Post, UserProfile } from "@/models";
 import { LastNews } from "@/models/LastNews";
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -336,4 +336,71 @@ export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> 
         }
     });
     return lastNews;
+};
+
+/**
+ * Comments Methods
+ */
+export const createComment = async (userId: string, postId: string, data: Partial<Comment>, commentId?: string) => {
+    try {
+        const commentCollection = collection(db, POST_COLLECTION, postId, COMMENT_COLLECTION);
+        const newComment = await addDoc(commentCollection, {
+            userId,
+            createdAt: new Date(),
+            ...data
+        });
+        if (commentId) {
+            const parentComment = await fetchComment(postId, commentId);
+            if (parentComment) {
+                const newCommentData = await fetchComment(postId, newComment.id);
+                if (newCommentData) {
+                    await updateComment(postId, commentId, { replies: [...parentComment.replies, newCommentData] });
+                }
+            }
+        }
+        return { id: newComment.id, ...data } as Comment;
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        return null;
+    }
+};
+
+export const fetchComment = async (postId: string, commentId: string): Promise<Comment | null> => {
+    try {
+        const commentDoc = await getDoc(doc(db, POST_COLLECTION, postId, COMMENT_COLLECTION, commentId));
+        if (commentDoc.exists()) {
+            return commentDoc.data() as Comment;
+        } else {
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching comment:", error);
+        return null;
+    }
+};
+
+export const updateComment = async (postId: string, commentId: string, data: Partial<Comment>) => {
+    try {
+        const commentDoc = doc(db, POST_COLLECTION, postId, COMMENT_COLLECTION, commentId);
+        await setDoc(commentDoc, data, { merge: true });
+    } catch (error) {
+        console.error("Error updating comment:", error);
+    }
+};
+
+export const listenToPostComments = (postId: string, onChange: (cmts: Comment[]) => void) => {
+    const commentCollection = collection(db, POST_COLLECTION, postId, COMMENT_COLLECTION);
+    const commentQuery = query(commentCollection, orderBy("createdAt", "asc"));
+    const unsubscribe = onSnapshot(commentQuery, async commentSnapshot => {
+        const comments: Comment[] = commentSnapshot.docs.map(
+            doc =>
+                ({
+                    id: doc.id,
+                    ...doc.data()
+                } as Comment)
+        );
+        onChange(comments);
+    });
+
+    return unsubscribe;
 };

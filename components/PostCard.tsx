@@ -1,9 +1,11 @@
 "use client";
 
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { updatePostLike } from "@/lib/firebase";
-import { Post } from "@/models";
+import { listenToPostComments, updatePostLike } from "@/lib/firebase";
+import { Comment, Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { CountUp } from "countup.js";
@@ -11,12 +13,12 @@ import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
 import { kebabCase } from "lodash";
-import { ChevronLeft, ChevronRight, MessageSquare, ThumbsUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, MessageCircle, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { CommentSection } from "./CommentSection";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 
 interface PostCardProps {
     post?: Post;
@@ -28,10 +30,24 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const { toast } = useToast();
     const { clerkUser } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
-    const [isVisible, setIsVisible] = useState(false);
+    const [, setIsVisible] = useState(false);
     const [odLikeCount, setOldLikeCount] = useState(0);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    useEffect(() => {
+        if (!post) {
+            return;
+        }
+        const fetchPosts = async () => {
+            const unsubscribe = listenToPostComments(post?.id, data => {
+                setComments(data);
+            });
+            return () => unsubscribe();
+        };
+        fetchPosts();
+    }, [post]);
 
     useEffect(() => {
         const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount, prefix: "(", suffix: ")" });
@@ -59,23 +75,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
             }
         };
     }, []);
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (isVisible) {
-            timer = setTimeout(() => {
-                // const count = new CountUp(key, post?.likedByUserIds?.length || 0);
-                // count.start();
-            }, 100); // Délai de 500ms
-        } else {
-            // const count = new CountUp(key, 0);
-            // count.start();
-        }
-
-        return () => {
-            if (timer) clearTimeout(timer);
-        };
-    }, [isVisible]);
 
     if (!post) {
         return null;
@@ -213,11 +212,21 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         <span className="text-sm">Like</span>
                         {!!post.likedByUserIds?.length && <span id={key}></span>}
                     </button>
-                    <button className="flex items-center gap-1 text-muted-foreground" onClick={handleCommentClick}>
-                        <MessageSquare className="w-5 h-5" />
-                        <span className="text-sm">Comment</span>
-                    </button>
                 </div>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="ghost" className="text-muted-foreground" onClick={() => handleCommentClick}>
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            Comment
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[90vh] sm:h-[85vh] sm:max-w-2xl sm:mx-auto">
+                        <SheetHeader>
+                            <SheetTitle>Comments</SheetTitle>
+                        </SheetHeader>
+                        <CommentSection comments={comments} />
+                    </SheetContent>
+                </Sheet>
             </CardFooter>
         </Card>
     );

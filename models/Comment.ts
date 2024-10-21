@@ -2,9 +2,11 @@ export interface Comment {
     id: string;
     postId: string;
     userId: string;
+    username: string;
+    userAvatar: string;
     content: string;
-    createdAt: Date;
-    parentCommentId?: string;
     likeCount: number;
     likedByUserIds: string[];
+    replies: Comment[];
+    createdAt: Date;
 }
