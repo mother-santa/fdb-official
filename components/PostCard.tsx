@@ -220,7 +220,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                             Comment
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="bottom" className="h-auto max-h-[33vh] sm:max-w-2xl sm:mx-auto overflow-y-auto">
+                    <SheetContent side="bottom" className="h-auto max-h-[66vh] sm:max-w-2xl sm:mx-auto overflow-y-auto">
                         <SheetHeader>
                             <SheetTitle>Comments</SheetTitle>
                         </SheetHeader>

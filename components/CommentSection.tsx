@@ -11,8 +11,9 @@ import { Input } from "./ui/input";
 
 export const CommentSection = ({ postId, comments }: { postId: string; comments: Comment[] }) => {
     const [newComment, setNewComment] = useState<string>("");
+    const [commentId, setCommentId] = useState<string>("");
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const { clerkUser } = useAppContext();
+    const { clerkUser, userProfile } = useAppContext();
     const { toast } = useToast();
 
     const handleEmojiClick = (emojiData: EmojiClickData) => {
@@ -27,9 +28,23 @@ export const CommentSection = ({ postId, comments }: { postId: string; comments:
         if (content.trim() === "") {
             return;
         }
-        console.log(content);
+
         try {
-            createComment(clerkUser?.id, postId, { content });
+            createComment(
+                clerkUser?.id,
+                postId,
+                {
+                    content,
+                    userId: clerkUser?.id,
+                    username: userProfile?.username,
+                    userAvatar: userProfile?.avatarUrl,
+                    likeCount: 0,
+                    likedByUserIds: [],
+                    replies: [],
+                    createdAt: new Date()
+                },
+                commentId
+            );
             setNewComment("");
         } catch (error) {
             toast({
@@ -40,15 +55,26 @@ export const CommentSection = ({ postId, comments }: { postId: string; comments:
             console.error("Error creating comment:", error);
         }
         setNewComment("");
+        setCommentId("");
     };
 
-    const toggleLike = (id: number) => {};
+    const toggleLike = (id: string) => {
+        console.log("Like", id);
+    };
 
     return (
         <div className="space-y-4">
             <div className="h-[calc(100vh-12rem)] overflow-y-auto pr-4 -mr-4">
                 {comments.map(comment => (
-                    <CommentCard key={comment.id} comment={comment} onLike={toggleLike} onReply={author => setNewComment(`@${author} `)} />
+                    <CommentCard
+                        key={comment.id}
+                        comment={comment}
+                        onLike={toggleLike}
+                        onReply={(commentId, author) => {
+                            setNewComment(`@${author} `);
+                            setCommentId(commentId);
+                        }}
+                    />
                 ))}
             </div>
             <div className="sticky bottom-0 bg-background pt-2">

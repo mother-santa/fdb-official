@@ -343,22 +343,21 @@ export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> 
  */
 export const createComment = async (userId: string, postId: string, data: Partial<Comment>, commentId?: string) => {
     try {
-        const commentCollection = collection(db, POST_COLLECTION, postId, COMMENT_COLLECTION);
-        const newComment = await addDoc(commentCollection, {
-            userId,
-            createdAt: new Date(),
-            ...data
-        });
-        // if (commentId) {
-        //     const parentComment = await fetchComment(postId, commentId);
-        //     if (parentComment) {
-        //         const newCommentData = await fetchComment(postId, newComment.id);
-        //         if (newCommentData) {
-        //             await updateComment(postId, commentId, { replies: [...parentComment.replies, newCommentData] });
-        //         }
-        //     }
-        // }
-        return { id: newComment.id, ...data } as Comment;
+        if (commentId && commentId !== "") {
+            const parentComment = await fetchComment(postId, commentId);
+            if (parentComment) {
+                await updateComment(postId, commentId, { replies: [...parentComment.replies, data as Comment] });
+                return { id: commentId, ...data, replies: [...parentComment.replies, data as Comment] } as Comment;
+            }
+        } else {
+            const commentCollection = collection(db, POST_COLLECTION, postId, COMMENT_COLLECTION);
+            const newComment = await addDoc(commentCollection, {
+                userId,
+                createdAt: new Date(),
+                ...data
+            });
+            return { id: newComment.id, ...data } as Comment;
+        }
     } catch (error) {
         console.error("Error creating comment:", error);
         return null;

@@ -1,7 +1,8 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Comment } from "@/models";
-import { Heart } from "lucide-react";
+import { AvatarImage } from "@radix-ui/react-avatar";
+import { Heart, Reply } from "lucide-react";
 
 export const CommentCard = ({
     comment,
@@ -10,8 +11,8 @@ export const CommentCard = ({
     depth = 0
 }: {
     comment: Comment;
-    onLike: (id: number) => void;
-    onReply: (author: string) => void;
+    onLike: (id: string) => void;
+    onReply: (commentId: string, author: string) => void;
     depth?: number;
 }) => {
     if (!comment) {
@@ -20,23 +21,37 @@ export const CommentCard = ({
     return (
         <div className={`pl-${depth * 4} border-l-2 border-muted-foreground/20`}>
             <div className="flex items-start space-x-4 p-4">
-                <Avatar className="w-8 h-8">
-                    <AvatarFallback>{comment.username}</AvatarFallback>
+                <Avatar className="w-6 h-6 my-1">
+                    <AvatarImage className="rounded-full" src={comment?.userAvatar} alt={comment?.username ?? "?"} />
+                    <AvatarFallback>
+                        {(comment?.username ?? "?")
+                            .split(" ")
+                            .map(name => name[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0, 2)}
+                    </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 space-y-1">
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium">{comment.username}</p>
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={() => onLike(comment.id)}>
-                            <Heart className={`w-4 h-4 ${comment.likedByUserIds?.length > 0 ? "fill-primary text-primary" : ""}`} />
-                            <span className="ml-1 text-xs">{comment.likedByUserIds?.length}</span>
-                        </Button>
+                        <div className="flex flex-row-reverse">
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={() => onLike(comment.id)}>
+                                <Heart className={`w-4 h-4 ${comment.likedByUserIds?.length > 0 ? "fill-primary text-primary" : ""}`} />
+                                <span className="ml-1 text-xs">{comment.likedByUserIds?.length}</span>
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-muted-foreground hover:text-primary px-1 mx-1"
+                                onClick={() => onReply(comment.id, comment.username)}
+                            >
+                                <span className="mr-1 text-xs">Répondre</span>
+                                <Reply className="w-4 h-4" />
+                            </Button>
+                        </div>
                     </div>
                     <p className="text-sm text-muted-foreground">{comment.content}</p>
-                    <div className="flex items-center space-x-2 text-xs">
-                        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary px-0" onClick={() => onReply(comment.author)}>
-                            Reply
-                        </Button>
-                    </div>
                 </div>
             </div>
             {comment.replies?.map(reply => (
