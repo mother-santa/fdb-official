@@ -389,7 +389,7 @@ export const updateComment = async (postId: string, commentId: string, data: Par
 
 export const listenToPostComments = (postId: string, onChange: (cmts: Comment[]) => void) => {
     const commentCollection = collection(db, POST_COLLECTION, postId, COMMENT_COLLECTION);
-    const commentQuery = query(commentCollection, orderBy("createdAt", "asc"));
+    const commentQuery = query(commentCollection, orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(commentQuery, async commentSnapshot => {
         const comments: Comment[] = commentSnapshot.docs.map(
             doc =>

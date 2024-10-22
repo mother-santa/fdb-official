@@ -64,7 +64,7 @@ export const CommentSection = ({ postId, comments }: { postId: string; comments:
 
     return (
         <div className="space-y-4">
-            <div className="h-[calc(100vh-12rem)] overflow-y-auto pr-4 -mr-4">
+            <div className="pr-4 -mr-4">
                 {comments.map(comment => (
                     <CommentCard
                         key={comment.id}

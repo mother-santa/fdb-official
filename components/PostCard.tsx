@@ -5,13 +5,11 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
 import { listenToPostComments, updatePostLike } from "@/lib/firebase";
+import { formatCreatedAt } from "@/lib/utils";
 import { Comment, Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { CountUp } from "countup.js";
-import { formatDistanceToNow } from "date-fns";
-import { fr as frLocale } from "date-fns/locale";
-import { Timestamp } from "firebase/firestore";
 import { kebabCase } from "lodash";
 import { ChevronLeft, ChevronRight, MessageCircle, ThumbsUp } from "lucide-react";
 import Image from "next/image";
@@ -116,16 +114,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         }
     };
 
-    const formatCreatedAt = (createdAt: Timestamp | Date | null | undefined) => {
-        if (createdAt instanceof Timestamp) {
-            return formatDistanceToNow(createdAt.toDate(), { addSuffix: true, locale: frLocale });
-        } else if (createdAt instanceof Date && !isNaN(createdAt.getTime())) {
-            return formatDistanceToNow(createdAt, { addSuffix: true, locale: frLocale });
-        } else {
-            return "Date inconnue";
-        }
-    };
-
     return (
         <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row items-center gap-4">
@@ -220,11 +208,13 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                             Comment
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="bottom" className="h-auto max-h-[66vh] sm:max-w-2xl sm:mx-auto overflow-y-auto">
-                        <SheetHeader>
+                    <SheetContent side="bottom" className="h-auto max-h-[66vh] sm:max-w-2xl sm:mx-auto overflow-y-auto py-0">
+                        <SheetHeader className="py-4 fixed z-50 bg-background sm:max-w-2xl sm:mx-auto">
                             <SheetTitle>Comments</SheetTitle>
                         </SheetHeader>
-                        <CommentSection comments={comments} postId={post.id} />
+                        <div className="mt-10">
+                            <CommentSection comments={comments} postId={post.id} />
+                        </div>
                     </SheetContent>
                 </Sheet>
             </CardFooter>
