@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
 import { fetchLastNewsForUser, updateUserProfile } from "@/lib/firebase";
 import { LastNews } from "@/models/LastNews";
@@ -9,7 +9,7 @@ import { Timestamp } from "firebase/firestore";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { TouchEvent, useEffect, useRef, useState } from "react";
 
-export const LastNewsModal = () => {
+export const LastNewsDialog = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { clerkUser } = useAppContext();
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -78,12 +78,12 @@ export const LastNewsModal = () => {
 
     return (
         isOpen && (
-            <Dialog open={isOpen} onOpenChange={() => {}}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Nos dernières infos</DialogTitle>
-                        <DialogDescription>Quelques infos depuis votre derniere connexion</DialogDescription>
-                    </DialogHeader>
+            <Sheet open={isOpen} onOpenChange={() => {}}>
+                <SheetContent side="bottom">
+                    <SheetHeader>
+                        <SheetTitle>Nos dernières infos</SheetTitle>
+                        <SheetDescription>Quelques infos depuis votre derniere connexion</SheetDescription>
+                    </SheetHeader>
                     <div className="mt-4">
                         <div className="relative">
                             <div ref={contentRef} className="overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
@@ -133,8 +133,8 @@ export const LastNewsModal = () => {
                     >
                         <ChevronRightIcon className="h-4 w-4" />
                     </Button>
-                </DialogContent>
-            </Dialog>
+                </SheetContent>
+            </Sheet>
         )
     );
 };
