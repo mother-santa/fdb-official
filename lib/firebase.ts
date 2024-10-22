@@ -349,15 +349,15 @@ export const createComment = async (userId: string, postId: string, data: Partia
             createdAt: new Date(),
             ...data
         });
-        if (commentId) {
-            const parentComment = await fetchComment(postId, commentId);
-            if (parentComment) {
-                const newCommentData = await fetchComment(postId, newComment.id);
-                if (newCommentData) {
-                    await updateComment(postId, commentId, { replies: [...parentComment.replies, newCommentData] });
-                }
-            }
-        }
+        // if (commentId) {
+        //     const parentComment = await fetchComment(postId, commentId);
+        //     if (parentComment) {
+        //         const newCommentData = await fetchComment(postId, newComment.id);
+        //         if (newCommentData) {
+        //             await updateComment(postId, commentId, { replies: [...parentComment.replies, newCommentData] });
+        //         }
+        //     }
+        // }
         return { id: newComment.id, ...data } as Comment;
     } catch (error) {
         console.error("Error creating comment:", error);

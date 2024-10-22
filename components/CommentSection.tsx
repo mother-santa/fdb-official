@@ -1,3 +1,6 @@
+import { useAppContext } from "@/contexts";
+import { useToast } from "@/hooks/use-toast";
+import { createComment } from "@/lib/firebase";
 import { Comment } from "@/models";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Smile } from "lucide-react";
@@ -6,41 +9,40 @@ import { CommentCard } from "./CommentCard";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-export const CommentSection = ({ comments }: { comments: Comment[] }) => {
+export const CommentSection = ({ postId, comments }: { postId: string; comments: Comment[] }) => {
     const [newComment, setNewComment] = useState<string>("");
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const { clerkUser } = useAppContext();
+    const { toast } = useToast();
 
-    // if (parentId === null) {
-    //     setComments([...comments, newCommentObj])
-    // } else {
-    //     const addReply = (comment: Comment): Comment => {
-    //     if (comment.id === parentId) {
-    //         return { ...comment, replies: [...comment.replies, newCommentObj] }
-    //     }
-    //     return { ...comment, replies: comment.replies.map(addReply) }
-    //     }
-    //     setComments(comments.map(addReply))
-    // }
     const handleEmojiClick = (emojiData: EmojiClickData) => {
         setNewComment(prev => prev + emojiData.emoji);
         setShowEmojiPicker(false);
     };
 
-    const addComment = (content: string) => {};
-
-    const toggleLike = (commentId: number) => {
-        //   const username = 'Current User'
-        //   const updateLikes = (comment: Comment): Comment => {
-        //     if (comment.id === commentId) {
-        //       const likedBy = comment.likedBy.includes(username)
-        //         ? comment.likedBy.filter(user => user !== username)
-        //         : [...comment.likedBy, username]
-        //       return { ...comment, likedBy }
-        //     }
-        //     return { ...comment, replies: comment.replies.map(updateLikes) }
-        //   }
-        //   setComments(comments.map(updateLikes))
+    const addComment = (content: string) => {
+        if (!clerkUser) {
+            return;
+        }
+        if (content.trim() === "") {
+            return;
+        }
+        console.log(content);
+        try {
+            createComment(clerkUser?.id, postId, { content });
+            setNewComment("");
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Whoops",
+                description: "Une erreur s'est produite lors de la création du commentaire"
+            });
+            console.error("Error creating comment:", error);
+        }
+        setNewComment("");
     };
+
+    const toggleLike = (id: number) => {};
 
     return (
         <div className="space-y-4">

@@ -27,8 +27,8 @@ export const CommentCard = ({
                     <div className="flex items-center justify-between">
                         <p className="text-sm font-medium">{comment.username}</p>
                         <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={() => onLike(comment.id)}>
-                            <Heart className={`w-4 h-4 ${comment.likedByUserIds.length > 0 ? "fill-primary text-primary" : ""}`} />
-                            <span className="ml-1 text-xs">{comment.likedByUserIds.length}</span>
+                            <Heart className={`w-4 h-4 ${comment.likedByUserIds?.length > 0 ? "fill-primary text-primary" : ""}`} />
+                            <span className="ml-1 text-xs">{comment.likedByUserIds?.length}</span>
                         </Button>
                     </div>
                     <p className="text-sm text-muted-foreground">{comment.content}</p>
@@ -39,7 +39,7 @@ export const CommentCard = ({
                     </div>
                 </div>
             </div>
-            {comment.replies.map(reply => (
+            {comment.replies?.map(reply => (
                 <CommentCard key={reply.id} comment={reply} onLike={onLike} onReply={onReply} depth={depth + 1} />
             ))}
         </div>
