@@ -44,11 +44,15 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     }, [clerkUser, isLoaded]);
 
     const loadUserProfile = async () => {
-        const usrProfile: UserProfile | null = await fetchUserProfile(clerkUser?.id ?? "");
-        if (usrProfile) {
-            setUserProfile(usrProfile);
+        if (!clerkUser) {
+            return;
+        }
+        const usrProfile = await fetchUserProfile(clerkUser?.id);
+        if (!!usrProfile) {
+            setUserProfile(usrProfile as unknown as UserProfile);
             setElves(await fetchUserElves(clerkUser?.id ?? ""));
         } else {
+            setUserProfile(null);
             setElves([]);
         }
     };
