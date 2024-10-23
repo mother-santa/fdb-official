@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatCreatedAt } from "@/lib/utils";
 import { Comment, Post } from "@/models";
 import { listenToPostComments } from "@/services/comment.service";
-import { updatePostLike } from "@/services/post.service";
+import { deletePost, updatePostLike } from "@/services/post.service";
 import { updateUserProfile } from "@/services/userProfile.service";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
@@ -39,7 +39,10 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [isFavorite] = useState(false);
     const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
     const isCurrentUserOwner = post?.ownerId === clerkUser?.id;
-    const [isReportingLoading, setIsReportingLoading] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    console.log(post?.ownerId, clerkUser?.id);
 
     useEffect(() => {
         if (!post) {
@@ -133,12 +136,12 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     };
 
     const handleReport = async () => {
-        setIsReportingLoading(true);
+        setIsReporting(true);
         if (!userProfile?.favoritePostIds?.includes(post.id)) {
             await updateUserProfile(clerkUser?.id || "", { reportedPostIds: [...(userProfile?.reportedPostIds ?? []), post.id] });
         }
         await loadUserProfile?.();
-        setIsReportingLoading(false);
+        setIsReporting(false);
         toast({
             variant: "destructive",
             title: "Merci !",
@@ -147,16 +150,20 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     };
 
     const handleEdit = () => {
-        // Implement edit logic here
-        console.log("Edit post");
+        // Implement Edit
     };
 
-    const handleDelete = () => {
-        // Implement delete logic here
-        console.log("Delete post");
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        await deletePost(post.id);
+        toast({
+            variant: "destructive",
+            title: "Merci !",
+            description: "Ce post a été supprimé"
+        });
     };
 
-    if (isReportingLoading) {
+    if (isReporting || isDeleting) {
         return (
             <Card className={`w-full max-w-md mx-auto ${className} !px-0 flex justify-center align-middle items-center p-10`}>
                 <Loader2 className="h-8 w-8 animate-spin" />

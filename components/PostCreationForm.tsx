@@ -77,7 +77,7 @@ export const PostCreationForm = ({
                 description,
                 assets: []
             };
-            const post = await createPost(currentElf.id, postData);
+            const post = await createPost(clerkUser.id, postData);
             if (!post) {
                 return;
             }
