@@ -4,19 +4,22 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { listenToPostComments, updatePostLike, updateUserProfile } from "@/lib/firebase";
 import { formatCreatedAt } from "@/lib/utils";
 import { Comment, Post } from "@/models";
+import { listenToPostComments } from "@/services/comment.service";
+import { updatePostLike } from "@/services/post.service";
+import { updateUserProfile } from "@/services/userProfile.service";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { CountUp } from "countup.js";
 import { kebabCase } from "lodash";
-import { ChevronLeft, ChevronRight, Loader2, MessageCircle, Star, ThumbsUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit, Flag, Loader2, MessageCircle, MoreVertical, Star, ThumbsUp, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { CommentSection } from "./CommentSection";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 interface PostCardProps {
     post?: Post;
@@ -33,8 +36,9 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
     const [comments, setComments] = useState<Comment[]>([]);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavorite] = useState(false);
     const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+    const isCurrentUserOwner = post?.ownerId === clerkUser?.id;
 
     useEffect(() => {
         if (!post) {
@@ -127,6 +131,21 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         }
     };
 
+    const handleReport = () => {
+        // Implement report logic here
+        console.log("Post reported");
+    };
+
+    const handleEdit = () => {
+        // Implement edit logic here
+        console.log("Edit post");
+    };
+
+    const handleDelete = () => {
+        // Implement delete logic here
+        console.log("Delete post");
+    };
+
     return (
         <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
             <CardHeader className="flex flex-row justify-between items-center gap-4 w-full">
@@ -167,6 +186,33 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         </>
                     )}
                 </Button>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <MoreVertical className="h-5 w-5" />
+                            <span className="sr-only">More options</span>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {isCurrentUserOwner ? (
+                            <>
+                                <DropdownMenuItem onClick={handleEdit}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit post
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleDelete}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete post
+                                </DropdownMenuItem>
+                            </>
+                        ) : (
+                            <DropdownMenuItem onClick={handleReport}>
+                                <Flag className="mr-2 h-4 w-4" />
+                                Report post
+                            </DropdownMenuItem>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">

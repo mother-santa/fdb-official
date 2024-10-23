@@ -6,8 +6,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { useAppContext } from "@/contexts";
-import { createPost, updateUserProfile, uploadPostAssets } from "@/lib/firebase";
 import { Elf, Post } from "@/models";
+import { createPost, uploadPostAssets } from "@/services/post.service";
+import { updateUserProfile } from "@/services/userProfile.service";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { ChevronDown, Loader2, Pause, Play, Smile, Trash2, UserPlus } from "lucide-react";
 import { useCallback, useRef, useState } from "react";

@@ -5,6 +5,7 @@ export interface PostItem {
 
 export interface Post {
     id: string;
+    ownerId: string;
     elfId: string;
     elfeName: string;
     elfeAvatarUrl: string;

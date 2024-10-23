@@ -1,7 +1,9 @@
 "use client";
 
-import { fetchUserElves, fetchUserProfile, listenToPosts, updateUserProfile } from "@/lib/firebase";
 import { AppContextType, Elf, Post, UserProfile } from "@/models";
+import { fetchUserElves } from "@/services/elf.service";
+import { listenToPosts } from "@/services/post.service";
+import { fetchUserProfile, updateUserProfile } from "@/services/userProfile.service";
 import { useAuth, useUser } from "@clerk/nextjs";
 import React, { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
@@ -42,9 +44,9 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     }, [clerkUser, isLoaded]);
 
     const loadUserProfile = async () => {
-        const usrProfile = await fetchUserProfile(clerkUser?.id ?? "");
-        setUserProfile(usrProfile);
+        const usrProfile: UserProfile | null = await fetchUserProfile(clerkUser?.id ?? "");
         if (usrProfile) {
+            setUserProfile(usrProfile);
             setElves(await fetchUserElves(clerkUser?.id ?? ""));
         } else {
             setElves([]);

@@ -1,6 +1,6 @@
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { checkElfSlugIsAvailable, createElf, updateElfPhoto } from "@/lib/firebase";
+import { checkElfSlugIsAvailable, createElf, updateElfPhoto } from "@/services/elf.service";
 import { kebabCase } from "lodash";
 import { Loader2, Lock, LockOpen, Upload, X } from "lucide-react";
 import Image from "next/image";

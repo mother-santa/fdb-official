@@ -3,8 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
-import { fetchLastNewsForUser, updateUserProfile } from "@/lib/firebase";
 import { LastNews } from "@/models/LastNews";
+import { fetchLastNewsForUser } from "@/services/lastNews.service";
+import { updateUserProfile } from "@/services/userProfile.service";
 import { Timestamp } from "firebase/firestore";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { TouchEvent, useEffect, useRef, useState } from "react";

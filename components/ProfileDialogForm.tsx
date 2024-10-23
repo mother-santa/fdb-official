@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { checkUserSlugIsAvailable, updateUserProfile, updateUserProfilePhoto } from "@/lib/firebase";
+import { checkUserSlugIsAvailable, updateUserProfile, updateUserProfilePhoto } from "@/services/userProfile.service";
 import { kebabCase } from "lodash";
 import { Loader2, Upload, X } from "lucide-react";
 import Image from "next/image";

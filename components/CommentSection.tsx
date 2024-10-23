@@ -1,7 +1,7 @@
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { createComment } from "@/lib/firebase";
 import { Comment } from "@/models";
+import { createComment } from "@/services/comment.service";
 import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Smile } from "lucide-react";
 import { useState } from "react";
