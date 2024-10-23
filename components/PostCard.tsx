@@ -156,6 +156,14 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         console.log("Delete post");
     };
 
+    if (isReportingLoading) {
+        return (
+            <Card className={`w-full max-w-md mx-auto ${className} !px-0 flex justify-center align-middle items-center p-10`}>
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </Card>
+        );
+    }
+
     if (userProfile?.reportedPostIds?.includes(post.id)) {
         return <></>;
     }
