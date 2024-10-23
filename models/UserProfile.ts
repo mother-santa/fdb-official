@@ -13,6 +13,7 @@ export interface UserProfile {
     preferredTheme: "light" | "dark";
     currentElfId: string;
     avatarUrl: string;
+    favoritePostIds: string[];
     createdAt: Date;
     readNewsAt?: Date;
 }

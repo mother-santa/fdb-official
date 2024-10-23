@@ -4,14 +4,14 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
 import { useToast } from "@/hooks/use-toast";
-import { listenToPostComments, updatePostLike } from "@/lib/firebase";
+import { listenToPostComments, updatePostLike, updateUserProfile } from "@/lib/firebase";
 import { formatCreatedAt } from "@/lib/utils";
 import { Comment, Post } from "@/models";
 import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { CountUp } from "countup.js";
 import { kebabCase } from "lodash";
-import { ChevronLeft, ChevronRight, MessageCircle, ThumbsUp } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, MessageCircle, Star, ThumbsUp } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { CommentSection } from "./CommentSection";
@@ -26,13 +26,15 @@ interface PostCardProps {
 export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [currentAsset, setCurrentAsset] = useState(0);
     const { toast } = useToast();
-    const { clerkUser } = useAppContext();
+    const { clerkUser, userProfile, loadUserProfile } = useAppContext();
     const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
     const [, setIsVisible] = useState(false);
     const [odLikeCount, setOldLikeCount] = useState(0);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
     const [comments, setComments] = useState<Comment[]>([]);
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
 
     useEffect(() => {
         if (!post) {
@@ -78,6 +80,17 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         return null;
     }
 
+    const toggleFavorite = async () => {
+        setIsFavoriteLoading(true);
+        if (userProfile?.favoritePostIds?.includes(post.id)) {
+            await updateUserProfile(clerkUser?.id || "", { favoritePostIds: userProfile.favoritePostIds.filter(id => id !== post.id) });
+        } else {
+            await updateUserProfile(clerkUser?.id || "", { favoritePostIds: [...(userProfile?.favoritePostIds ?? []), post.id] });
+        }
+        await loadUserProfile?.();
+        setIsFavoriteLoading(false);
+    };
+
     const nextImage = () => {
         setCurrentAsset(prev => (prev + 1) % post.assets.length);
     };
@@ -116,24 +129,44 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
 
     return (
         <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
-            <CardHeader className="flex flex-row items-center gap-4">
-                <Avatar className="w-12 h-12">
-                    <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
-                    <AvatarFallback>
-                        {post?.elfeName
-                            ? post.elfeName
-                                  .split(" ")
-                                  .map(name => name[0])
-                                  .join("")
-                                  .toUpperCase()
-                                  .slice(0, 2)
-                            : "--"}
-                    </AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col">
-                    <h2 className="text-lg font-semibold">{post?.elfeName || "lutin anonyme"}</h2>
-                    <p className="text-sm text-muted-foreground">{formatCreatedAt(post.createdAt)}</p>{" "}
+            <CardHeader className="flex flex-row justify-between items-center gap-4 w-full">
+                <div className="flex flex-row justify-between items-center gap-4">
+                    <Avatar className="w-12 h-12">
+                        <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
+                        <AvatarFallback>
+                            {post?.elfeName
+                                ? post.elfeName
+                                      .split(" ")
+                                      .map(name => name[0])
+                                      .join("")
+                                      .toUpperCase()
+                                      .slice(0, 2)
+                                : "--"}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col">
+                        <h2 className="text-lg font-semibold">{post?.elfeName || "lutin anonyme"}</h2>
+                        <p className="text-sm text-muted-foreground">{formatCreatedAt(post.createdAt)}</p>{" "}
+                    </div>
                 </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className={`text-muted-foreground ${isFavorite ? "text-yellow-400 hover:text-yellow-500" : "hover:text-yellow-400"}`}
+                    onClick={toggleFavorite}
+                    disabled={isFavoriteLoading}
+                >
+                    {!isFavoriteLoading ? (
+                        <>
+                            <Star className={`h-5 w-5 ${userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400" : "text-muted-foreground"}`} />
+                            <span className="sr-only">{userProfile?.favoritePostIds?.includes(post.id) ? "Remove from favorites" : "Add to favorites"}</span>
+                        </>
+                    ) : (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        </>
+                    )}
+                </Button>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">

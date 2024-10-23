@@ -327,7 +327,6 @@ export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> 
     }
     const lastNewsCollection = collection(db, LAST_NEWS_COLLECTION);
     const q = query(lastNewsCollection, where("createdAt", ">", userProfile.readNewsAt ?? new Date("01-01-1970")), orderBy("createdAt", "asc"));
-    alert(userProfile.readNewsAt ?? new Date("01-01-1970"));
     const querySnapshot = await getDocs(q);
     const lastNews: LastNews[] = [];
     querySnapshot.forEach(doc => {
@@ -336,7 +335,6 @@ export const fetchLastNewsForUser = async (userId: string): Promise<LastNews[]> 
             lastNews.push({ id: doc.id, ...newsData } as LastNews);
         }
     });
-    alert(lastNews);
     return lastNews;
 };
 
