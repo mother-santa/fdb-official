@@ -14,6 +14,7 @@ export interface UserProfile {
     currentElfId: string;
     avatarUrl: string;
     favoritePostIds: string[];
+    reportedPostIds: string[];
     createdAt: Date;
     readNewsAt?: Date;
 }

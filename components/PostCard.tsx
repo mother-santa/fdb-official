@@ -39,6 +39,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [isFavorite] = useState(false);
     const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
     const isCurrentUserOwner = post?.ownerId === clerkUser?.id;
+    const [isReportingLoading, setIsReportingLoading] = useState(false);
 
     useEffect(() => {
         if (!post) {
@@ -131,9 +132,18 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         }
     };
 
-    const handleReport = () => {
-        // Implement report logic here
-        console.log("Post reported");
+    const handleReport = async () => {
+        setIsReportingLoading(true);
+        if (!userProfile?.favoritePostIds?.includes(post.id)) {
+            await updateUserProfile(clerkUser?.id || "", { reportedPostIds: [...(userProfile?.reportedPostIds ?? []), post.id] });
+        }
+        await loadUserProfile?.();
+        setIsReportingLoading(false);
+        toast({
+            variant: "destructive",
+            title: "Merci !",
+            description: "Ce post a été signalé à l'équipe de modération"
+        });
     };
 
     const handleEdit = () => {
@@ -145,6 +155,10 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         // Implement delete logic here
         console.log("Delete post");
     };
+
+    if (userProfile?.reportedPostIds?.includes(post.id)) {
+        return <></>;
+    }
 
     return (
         <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
@@ -168,51 +182,55 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         <p className="text-sm text-muted-foreground">{formatCreatedAt(post.createdAt)}</p>{" "}
                     </div>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className={`text-muted-foreground ${isFavorite ? "text-yellow-400 hover:text-yellow-500" : "hover:text-yellow-400"}`}
-                    onClick={toggleFavorite}
-                    disabled={isFavoriteLoading}
-                >
-                    {!isFavoriteLoading ? (
-                        <>
-                            <Star className={`h-5 w-5 ${userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400" : "text-muted-foreground"}`} />
-                            <span className="sr-only">{userProfile?.favoritePostIds?.includes(post.id) ? "Remove from favorites" : "Add to favorites"}</span>
-                        </>
-                    ) : (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        </>
-                    )}
-                </Button>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-5 w-5" />
-                            <span className="sr-only">More options</span>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {isCurrentUserOwner ? (
+                <div className="flex items-center justify-end gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`text-muted-foreground ${isFavorite ? "text-yellow-400 hover:text-yellow-500" : "hover:text-yellow-400"}`}
+                        onClick={toggleFavorite}
+                        disabled={isFavoriteLoading}
+                    >
+                        {!isFavoriteLoading ? (
                             <>
-                                <DropdownMenuItem onClick={handleEdit}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    Edit post
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={handleDelete}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete post
-                                </DropdownMenuItem>
+                                <Star className={`h-5 w-5 ${userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400" : "text-muted-foreground"}`} />
+                                <span className="sr-only">
+                                    {userProfile?.favoritePostIds?.includes(post.id) ? "Remove from favorites" : "Add to favorites"}
+                                </span>
                             </>
                         ) : (
-                            <DropdownMenuItem onClick={handleReport}>
-                                <Flag className="mr-2 h-4 w-4" />
-                                Report post
-                            </DropdownMenuItem>
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            </>
                         )}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-5 w-5" />
+                                <span className="sr-only">More options</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {isCurrentUserOwner ? (
+                                <>
+                                    <DropdownMenuItem onClick={handleEdit}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Edit post
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleDelete}>
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete post
+                                    </DropdownMenuItem>
+                                </>
+                            ) : (
+                                <DropdownMenuItem onClick={handleReport}>
+                                    <Flag className="mr-2 h-4 w-4" />
+                                    Report post
+                                </DropdownMenuItem>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </CardHeader>
             <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">
