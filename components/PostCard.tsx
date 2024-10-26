@@ -17,6 +17,7 @@ import { ChevronLeft, ChevronRight, Edit, Flag, Loader2, MessageCircle, MoreVert
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { CommentSection } from "./CommentSection";
+import { ShareButtons } from "./ShareButtons";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
@@ -176,7 +177,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     }
 
     return (
-        <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`}>
+        <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`} id={post.id}>
             <CardHeader className="flex flex-row justify-between items-center gap-4 w-full">
                 <div className="flex flex-row justify-between items-center gap-4">
                     <Avatar className="w-12 h-12">
@@ -329,6 +330,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         </div>
                     </SheetContent>
                 </Sheet>
+                <ShareButtons title={post.description} url={`${process.env.NEXT_PUBLIC_APP_BASEURL}/#${post.id}`} />
             </CardFooter>
         </Card>
     );
