@@ -62,7 +62,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         setTimeout(() => {
             setOldLikeCount(post?.likedByUserIds?.length || 0);
         }, 400);
-    }, [post?.likedByUserIds]);
+    }, [post?.likedByUserIds, key, odLikeCount]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
