@@ -16,7 +16,7 @@ export const NoPostCard = () => {
     const [isElfDialogOpen, setIsElfDialogOpen] = useState(false);
     const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
     const { toast } = useToast();
-    const { clerkUser, userProfile, currentElf, isLoadingPosts } = useAppContext();
+    const { clerkUser, userProfile, currentElf, isLoadingPosts, isLaunched } = useAppContext();
     const clerk = useClerk();
 
     return (
@@ -31,6 +31,14 @@ export const NoPostCard = () => {
                         <Button
                             className="flex items-center space-x-2"
                             onClick={() => {
+                                if (!isLaunched) {
+                                    toast({
+                                        title: "Les lutins sont en route !",
+                                        description: "Les lutins sont en route, vous pourrez poster un message dès le 1er décembre."
+                                    });
+                                    return;
+                                }
+
                                 if (!clerkUser) {
                                     toast({
                                         title: "Connectez-vous pour poster un message",

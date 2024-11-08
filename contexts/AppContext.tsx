@@ -17,7 +17,9 @@ const defaultValue: AppContextType = {
     clerkUser: null,
     elves: [],
     currentElf: null,
-    isLoadingPosts: true
+    isLoadingPosts: true,
+    isLaunched: false,
+    targetDate: new Date(new Date().getFullYear(), 11, 1)
 };
 
 const AppContext = createContext(defaultValue);
@@ -30,6 +32,24 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     const [elves, setElves] = useState<Elf[]>([]);
     const [currentElf, setCurrentElf] = useState<Elf | null>(null);
     const [isLoadingPosts, setIsLoadingPosts] = useState<boolean>(true);
+    const [isLaunched, setIsLaunched] = useState<boolean>(false);
+
+    useEffect(() => {
+        const calculateTimeLeft = () => {
+            const now = new Date();
+            const difference = defaultValue.targetDate.getTime() - now.getTime();
+
+            if (difference > 0) {
+                setIsLaunched(true);
+            }
+            setIsLaunched(false);
+        };
+
+        calculateTimeLeft();
+        const timer = setInterval(calculateTimeLeft, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     useEffect(() => {
         if (!isLoaded) {
@@ -75,7 +95,9 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
     }, [userProfile, elves]);
 
     return (
-        <AppContext.Provider value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf, posts, isLoadingPosts }}>
+        <AppContext.Provider
+            value={{ ...value, clerkUser: clerkUser ?? null, userProfile, loadUserProfile, elves, currentElf, posts, isLoadingPosts, isLaunched }}
+        >
             {children}
         </AppContext.Provider>
     );

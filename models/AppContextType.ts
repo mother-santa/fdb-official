@@ -10,5 +10,7 @@ export interface AppContextType {
     elves: Elf[];
     currentElf: Elf | null;
     isLoadingPosts: boolean;
+    isLaunched: boolean;
+    targetDate: Date;
     loadUserProfile?: () => Promise<void>;
 }

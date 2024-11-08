@@ -24,7 +24,7 @@ export const PostCreationForm = ({
     isNewElfOpen: boolean;
     setIsNewElfOpen: (isOpen: boolean) => void;
 }) => {
-    const { currentElf, elves, clerkUser, loadUserProfile } = useAppContext();
+    const { currentElf, elves, clerkUser, loadUserProfile, isLaunched } = useAppContext();
     const [currentUser, setCurrentUser] = useState<Elf>(currentElf ?? elves[0]);
     const [description, setDescription] = useState("");
     const [playingVideo, setPlayingVideo] = useState<number | null>(null);
