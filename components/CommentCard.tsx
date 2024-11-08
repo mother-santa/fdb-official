@@ -20,7 +20,7 @@ export const CommentCard = ({
         return null;
     }
     return (
-        <div className={`pl-${depth * 4} border-l-2 border-muted-foreground/20`}>
+        <div className={`pl-8 border-l-${depth ? "0" : "2"} border-muted-foreground/20`}>
             <div className="flex items-start space-x-4 p-4">
                 <Avatar className="w-6 h-6 my-1">
                     <AvatarImage className="rounded-full" src={comment?.userAvatar} alt={comment?.username ?? "?"} />

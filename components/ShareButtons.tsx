@@ -47,23 +47,23 @@ export const ShareButtons = ({ title: postTitle, url: shareUrl, postImage }: Sha
             </PopoverTrigger>
             <PopoverContent className="w-56">
                 <div className="grid gap-4">
-                    <h3 className="font-semibold text-center">Share this post</h3>
+                    <h3 className="font-semibold text-center">Partager</h3>
                     <div className="flex justify-between">
                         <Button variant="outline" size="icon" onClick={() => window.open(shareLinks.facebook, "_blank")}>
                             <FaFacebookF className="h-4 w-4" />
-                            <span className="sr-only">Share on Facebook</span>
+                            <span className="sr-only">Sur Facebook</span>
                         </Button>
                         <Button variant="outline" size="icon" onClick={() => window.open(shareLinks.twitter, "_blank")}>
                             <FaTwitter className="h-4 w-4" />
-                            <span className="sr-only">Share on Twitter</span>
+                            <span className="sr-only">Sur Twitter</span>
                         </Button>
                         <Button variant="outline" size="icon" onClick={() => window.open(shareLinks.pinterest, "_blank")}>
                             <FaPinterestP className="h-4 w-4" />
-                            <span className="sr-only">Share on Pinterest</span>
+                            <span className="sr-only">Sur Pinterest</span>
                         </Button>
                         <Button variant="outline" size="icon" onClick={copyToClipboard}>
                             <IoLinkOutline className="h-4 w-4" />
-                            <span className="sr-only">Copy link</span>
+                            <span className="sr-only">Copier le lien</span>
                         </Button>
                     </div>
                 </div>

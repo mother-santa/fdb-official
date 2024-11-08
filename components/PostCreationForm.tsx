@@ -173,7 +173,7 @@ export const PostCreationForm = ({
                     onDragOver={handleDragOver}
                 >
                     <input id="file-upload" type="file" multiple accept="image/*,video/*" className="hidden" onChange={handleFileChange} />
-                    <p>Click or drag to upload photos or videos</p>
+                    <p>Cliquez ou glissez pour uploader des photos ou des vidéos</p>
                 </div>
                 {files.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -231,7 +231,7 @@ export const PostCreationForm = ({
                     <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                         Annuler
                     </Button>
-                    <Button type="submit">
+                    <Button type="submit" disabled={isLoading || files.length === 0}>
                         {isLoading ? (
                             <>
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

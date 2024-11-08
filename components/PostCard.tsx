@@ -43,8 +43,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const [isReporting, setIsReporting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    console.log(post?.ownerId, clerkUser?.id);
-
     useEffect(() => {
         if (!post) {
             return;
@@ -90,6 +88,10 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     }
 
     const toggleFavorite = async () => {
+        if (!clerkUser) {
+            displayNotConnectedToast();
+            return;
+        }
         setIsFavoriteLoading(true);
         if (userProfile?.favoritePostIds?.includes(post.id)) {
             await updateUserProfile(clerkUser?.id || "", { favoritePostIds: userProfile.favoritePostIds.filter(id => id !== post.id) });
@@ -129,18 +131,17 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         updatePostLike(clerkUser.id, post.id);
     };
 
-    const handleCommentClick = () => {
+    const handleCommentClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!clerkUser) {
             displayNotConnectedToast();
-            return;
+            e.preventDefault();
         }
+        return true;
     };
 
     const handleReport = async () => {
         setIsReporting(true);
-        if (!userProfile?.favoritePostIds?.includes(post.id)) {
-            await updateUserProfile(clerkUser?.id || "", { reportedPostIds: [...(userProfile?.reportedPostIds ?? []), post.id] });
-        }
+        await updateUserProfile(clerkUser?.id || "", { reportedPostIds: [...(userProfile?.reportedPostIds ?? []), post.id] });
         await loadUserProfile?.();
         setIsReporting(false);
         toast({
@@ -316,7 +317,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                 </div>
                 <Sheet>
                     <SheetTrigger asChild>
-                        <Button variant="ghost" className="text-muted-foreground" onClick={() => handleCommentClick}>
+                        <Button variant="ghost" className="text-muted-foreground" onClick={handleCommentClick}>
                             <MessageCircle className="w-4 h-4 mr-2" />
                             Comment
                         </Button>

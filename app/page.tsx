@@ -1,5 +1,6 @@
 "use client";
 
+import { Countdown } from "@/components/Countdown";
 import { EarlyCTA } from "@/components/EarlyCTA";
 import { LastNewsDialog } from "@/components/LastNewsDialog";
 import { NoPostCard } from "@/components/NoPostCard";
@@ -22,6 +23,7 @@ export default function Home() {
     return (
         <Container className="max-w-lg flex flex-col gap-2 pt-24">
             {clerkUser && <LastNewsDialog />}
+            <Countdown />
             <EarlyCTA />
             <TestWarning />
             <ProfileCreationCard />
