@@ -18,7 +18,7 @@ const defaultValue: AppContextType = {
     elves: [],
     currentElf: null,
     isLoadingPosts: true,
-    isLaunched: false,
+    isLaunched: true,
     targetDate: new Date(new Date().getFullYear(), 11, 1)
 };
 
@@ -50,6 +50,9 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
 
         return () => clearInterval(timer);
     }, []);
+
+    console.log("isLaunched", isLaunched);
+    console.log("difference", defaultValue.targetDate.getTime() - new Date().getTime());
 
     useEffect(() => {
         if (!isLoaded) {

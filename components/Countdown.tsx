@@ -38,7 +38,7 @@ export function Countdown() {
 
     return (
         !isLaunched &&
-        timeLeft.days > 0 && (
+        timeLeft.seconds > 0 && (
             <div className="bg-white rounded-lg p-4 shadow-sm border border-orange-500/80 text-orange-500">
                 <h2 className="text-lg font-semibold text-center mb-4">L'aventure {new Date().getFullYear()} commence dans</h2>
 
