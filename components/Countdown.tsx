@@ -14,10 +14,12 @@ export function Countdown() {
 
     useEffect(() => {
         const calculateTimeLeft = () => {
-            const now = new Date(30 / 11 / 2024);
+            const now = new Date();
             const difference = targetDate.getTime() - now.getTime();
 
-            if (difference > 0) {
+            console.log(difference);
+
+            if (difference >= 0) {
                 setTimeLeft({
                     days: Math.floor(difference / (1000 * 60 * 60 * 24)),
                     hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
