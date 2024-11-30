@@ -14,7 +14,7 @@ export function Countdown() {
 
     useEffect(() => {
         const calculateTimeLeft = () => {
-            const now = new Date();
+            const now = new Date(30 / 11 / 2024);
             const difference = targetDate.getTime() - now.getTime();
 
             if (difference > 0) {
