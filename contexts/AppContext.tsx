@@ -39,10 +39,11 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
             const now = new Date();
             const difference = defaultValue.targetDate.getTime() - now.getTime();
 
-            if (difference > 0) {
+            if (difference < 0) {
                 setIsLaunched(true);
+            } else {
+                setIsLaunched(false);
             }
-            setIsLaunched(false);
         };
 
         calculateTimeLeft();
