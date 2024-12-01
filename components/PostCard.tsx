@@ -183,7 +183,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                                 <DropdownMenuContent align="end">
                                     {isCurrentUserOwner ? (
                                         <>
-                                            <DropdownMenuItem onClick={handleEdit}>
+                                            <DropdownMenuItem onClick={() => {}}>
                                                 <Edit className="mr-2 h-4 w-4" />
                                                 Edit post
                                             </DropdownMenuItem>
