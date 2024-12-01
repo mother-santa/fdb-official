@@ -50,7 +50,7 @@ export default function Navbar() {
                         <div className="flex items-center">
                             <SignedOut>
                                 <SignInButton>
-                                    <Button variant="ghost" className="text-white hover:text-primary-foreground">
+                                    <Button variant="ghost" className="text-white dark:text-black hover:text-primary-foreground dark:hover:text-primary">
                                         <LogIn className="h-5 w-5 mr-2" />
                                         Login
                                     </Button>
@@ -97,7 +97,7 @@ export default function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="ml-4 text-white hover:text-primary-foreground"
+                                className="ml-4 text-white dark:text-black hover:text-primary-foreground dark:hover:text-primary"
                                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                             >
                                 {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
