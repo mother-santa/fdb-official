@@ -4,6 +4,7 @@ import { Comment, Post } from "@/models";
 import { listenToPostComments } from "@/services/comment.service";
 import { deletePost, updatePostLike } from "@/services/post.service";
 import { updateUserProfile } from "@/services/userProfile.service";
+import { SignInButton } from "@clerk/nextjs";
 import { ToastAction } from "@radix-ui/react-toast";
 import { CountUp } from "countup.js";
 import { useEffect, useState } from "react";
