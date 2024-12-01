@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
-import { formatDistanceToNow } from "date-fns";
+import { differenceInMonths, format, formatDistanceToNow } from "date-fns";
 import { fr as frLocale } from "date-fns/locale";
 import { Timestamp } from "firebase/firestore";
 import { twMerge } from "tailwind-merge";
@@ -9,10 +9,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatCreatedAt = (createdAt: Timestamp | Date | null | undefined) => {
+    const formatDate = (date: Date) => {
+        const monthsDifference = differenceInMonths(new Date(), date);
+        if (monthsDifference > 1) {
+            return formatDistanceToNow(date, { addSuffix: true, locale: frLocale }) + " - " + format(date, "d MMMM yyyy", { locale: frLocale });
+        }
+        return formatDistanceToNow(date, { addSuffix: true, locale: frLocale });
+    };
+
     if (createdAt instanceof Timestamp) {
-        return formatDistanceToNow(createdAt.toDate(), { addSuffix: true, locale: frLocale });
+        return formatDate(createdAt.toDate());
     } else if (createdAt instanceof Date && !isNaN(createdAt.getTime())) {
-        return formatDistanceToNow(createdAt, { addSuffix: true, locale: frLocale });
+        return formatDate(createdAt);
     } else {
         return "Date inconnue";
     }

@@ -205,17 +205,26 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                 </div>
             </div>
 
-            <CardContent className="px-4 pt-4 pb-0">
-                <div className="flex flex-col gap-2">
+            <CardContent className="px-4 pt-3 pb-4 space-y-3">
+                {/* Actions Row */}
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
-                            <ThumbsUp className="w-5 h-5" />
-                            {!!post.likedByUserIds?.length && <span id={key} className="text-sm"></span>}
+                        <button
+                            className={`flex items-center gap-1 hover:opacity-70 transition-opacity ${isLiked ? "text-success" : "text-foreground"}`}
+                            onClick={handleLikeClick}
+                        >
+                            <ThumbsUp className="w-[22px] h-[22px]" />
+                            {!!post.likedByUserIds?.length && <span id={key} className="text-sm font-medium"></span>}
                         </button>
                         <Sheet>
                             <SheetTrigger asChild>
-                                <Button variant="ghost" size="sm" className="text-muted-foreground px-0" onClick={handleCommentClick}>
-                                    <MessageCircle className="w-5 h-5" />
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-foreground hover:opacity-70 transition-opacity px-0"
+                                    onClick={handleCommentClick}
+                                >
+                                    <MessageCircle className="w-[22px] h-[22px]" />
                                 </Button>
                             </SheetTrigger>
                             <SheetContent side="bottom" className="h-[80vh] sm:max-w-2xl sm:mx-auto">
@@ -229,7 +238,40 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         </Sheet>
                         <ShareButtons title={post.description} url={`${process.env.NEXT_PUBLIC_APP_BASEURL}/#${post.id}`} />
                     </div>
-                    <p className="text-sm">{post?.description || "Pas de contenu"}</p>
+                </div>
+
+                {/* Description Section */}
+                <div className="space-y-2">
+                    {!!post.likedByUserIds?.length && (
+                        <p className="text-sm font-medium">
+                            {post.likedByUserIds.length} {post.likedByUserIds.length === 1 ? "like" : "likes"}
+                        </p>
+                    )}
+
+                    <div className="text-sm">
+                        <span className="font-semibold mr-2">{post?.elfeName || "lutin anonyme"}</span>
+                        <span className="text-foreground/90">{post?.description || "Pas de contenu"}</span>
+                    </div>
+
+                    {comments.length > 0 && (
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <button className="text-sm text-muted-foreground hover:text-muted-foreground/80 transition-colors" onClick={handleCommentClick}>
+                                    View all {comments.length} comments
+                                </button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="h-[80vh] sm:max-w-2xl sm:mx-auto">
+                                <SheetHeader>
+                                    <SheetTitle>Comments</SheetTitle>
+                                </SheetHeader>
+                                <div className="mt-4">
+                                    <CommentSection comments={comments} postId={post.id} />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                    )}
+
+                    <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{formatCreatedAt(post.createdAt)}</p>
                 </div>
             </CardContent>
         </Card>
