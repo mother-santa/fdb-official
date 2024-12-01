@@ -1,17 +1,11 @@
 "use client";
 
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useAppContext } from "@/contexts";
-import { useToast } from "@/hooks/use-toast";
+import { usePostCard } from "@/helpers/post-card/use-post-card";
 import { formatCreatedAt } from "@/lib/utils";
-import { Comment, Post } from "@/models";
-import { listenToPostComments } from "@/services/comment.service";
-import { deletePost, updatePostLike } from "@/services/post.service";
-import { updateUserProfile } from "@/services/userProfile.service";
-import { SignInButton } from "@clerk/nextjs";
-import { ToastAction } from "@radix-ui/react-toast";
-import { CountUp } from "countup.js";
+import { Post } from "@/models";
 import { kebabCase } from "lodash";
 import { ChevronLeft, ChevronRight, Edit, Flag, Loader2, MessageCircle, MoreVertical, Star, ThumbsUp, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -28,41 +22,31 @@ interface PostCardProps {
 }
 
 export const PostCard = ({ post, className = "" }: PostCardProps) => {
-    const [currentAsset, setCurrentAsset] = useState(0);
-    const { toast } = useToast();
-    const { clerkUser, userProfile, loadUserProfile } = useAppContext();
-    const isLiked = post && (post.likedByUserIds || []).includes(clerkUser?.id || "");
-    const [, setIsVisible] = useState(false);
-    const [odLikeCount, setOldLikeCount] = useState(0);
+    const {
+        currentAsset,
+        comments,
+        isReporting,
+        isDeleting,
+        isFavoriteLoading,
+        isLiked,
+        isCurrentUserOwner,
+        handleLikeAnimation,
+        displayNotConnectedToast,
+        handleLikeClick,
+        toggleFavorite,
+        handleReport,
+        handleDelete,
+        handleAssetNavigation
+    } = usePostCard(post);
+
+    const { clerkUser, userProfile } = useAppContext();
+    const [isVisible, setIsVisible] = useState(false);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [isFavorite] = useState(false);
-    const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
-    const isCurrentUserOwner = post?.ownerId === clerkUser?.id;
-    const [isReporting, setIsReporting] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
-        if (!post) {
-            return;
-        }
-        const fetchPosts = async () => {
-            const unsubscribe = listenToPostComments(post?.id, data => {
-                setComments(data);
-            });
-            return () => unsubscribe();
-        };
-        fetchPosts();
-    }, [post]);
-
-    useEffect(() => {
-        const count = new CountUp(key, post?.likedByUserIds?.length || 0, { duration: 0.4, startVal: odLikeCount, prefix: "(", suffix: ")" });
-        count.start();
-        setTimeout(() => {
-            setOldLikeCount(post?.likedByUserIds?.length || 0);
-        }, 400);
-    }, [post?.likedByUserIds, key, odLikeCount]);
+        handleLikeAnimation(key);
+    }, [post?.likedByUserIds, key]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -83,54 +67,6 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         };
     }, []);
 
-    if (!post) {
-        return null;
-    }
-
-    const toggleFavorite = async () => {
-        if (!clerkUser) {
-            displayNotConnectedToast();
-            return;
-        }
-        setIsFavoriteLoading(true);
-        if (userProfile?.favoritePostIds?.includes(post.id)) {
-            await updateUserProfile(clerkUser?.id || "", { favoritePostIds: userProfile.favoritePostIds.filter(id => id !== post.id) });
-        } else {
-            await updateUserProfile(clerkUser?.id || "", { favoritePostIds: [...(userProfile?.favoritePostIds ?? []), post.id] });
-        }
-        await loadUserProfile?.();
-        setIsFavoriteLoading(false);
-    };
-
-    const nextImage = () => {
-        setCurrentAsset(prev => (prev + 1) % post.assets.length);
-    };
-
-    const prevImage = () => {
-        setCurrentAsset(prev => (prev - 1 + post.assets.length) % post.assets.length);
-    };
-
-    const displayNotConnectedToast = () => {
-        toast({
-            variant: "destructive",
-            title: "Whooooo",
-            description: "Tu devrais peut-être te connecter pour intéragir avec ce post !",
-            action: (
-                <SignInButton>
-                    <ToastAction altText="Me connecter">Me connecter</ToastAction>
-                </SignInButton>
-            )
-        });
-    };
-
-    const handleLikeClick = () => {
-        if (!clerkUser) {
-            displayNotConnectedToast();
-            return;
-        }
-        updatePostLike(clerkUser.id, post.id);
-    };
-
     const handleCommentClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!clerkUser) {
             displayNotConnectedToast();
@@ -139,121 +75,14 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
         return true;
     };
 
-    const handleReport = async () => {
-        setIsReporting(true);
-        await updateUserProfile(clerkUser?.id || "", { reportedPostIds: [...(userProfile?.reportedPostIds ?? []), post.id] });
-        await loadUserProfile?.();
-        setIsReporting(false);
-        toast({
-            variant: "destructive",
-            title: "Merci !",
-            description: "Ce post a été signalé à l'équipe de modération"
-        });
-    };
-
-    const handleEdit = () => {
-        // Implement Edit
-    };
-
-    const handleDelete = async () => {
-        setIsDeleting(true);
-        await deletePost(post.id);
-        toast({
-            variant: "destructive",
-            title: "Merci !",
-            description: "Ce post a été supprimé"
-        });
-    };
-
-    if (isReporting || isDeleting) {
-        return (
-            <Card className={`w-full max-w-md mx-auto ${className} !px-0 flex justify-center align-middle items-center p-10`}>
-                <Loader2 className="h-8 w-8 animate-spin" />
-            </Card>
-        );
-    }
-
-    if (userProfile?.reportedPostIds?.includes(post.id)) {
-        return <></>;
+    if (!post) {
+        return null;
     }
 
     return (
-        <Card ref={cardRef} className={`w-full max-w-md mx-auto ${className} !px-0`} id={post.id}>
-            <CardHeader className="flex flex-row justify-between items-center gap-4 w-full">
-                <div className="flex flex-row justify-between items-center gap-4">
-                    <Avatar className="w-12 h-12">
-                        <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
-                        <AvatarFallback>
-                            {post?.elfeName
-                                ? post.elfeName
-                                      .split(" ")
-                                      .map(name => name[0])
-                                      .join("")
-                                      .toUpperCase()
-                                      .slice(0, 2)
-                                : "--"}
-                        </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                        <h2 className="text-lg font-semibold">{post?.elfeName || "lutin anonyme"}</h2>
-                        <p className="text-sm text-muted-foreground">{formatCreatedAt(post.createdAt)}</p>{" "}
-                    </div>
-                </div>
-                <div className="flex items-center justify-end gap-4">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className={`text-muted-foreground ${isFavorite ? "text-yellow-400 hover:text-yellow-500" : "hover:text-yellow-400"}`}
-                        onClick={toggleFavorite}
-                        disabled={isFavoriteLoading}
-                    >
-                        {!isFavoriteLoading ? (
-                            <>
-                                <Star className={`h-5 w-5 ${userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400" : "text-muted-foreground"}`} />
-                                <span className="sr-only">
-                                    {userProfile?.favoritePostIds?.includes(post.id) ? "Remove from favorites" : "Add to favorites"}
-                                </span>
-                            </>
-                        ) : (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            </>
-                        )}
-                    </Button>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-5 w-5" />
-                                <span className="sr-only">More options</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {isCurrentUserOwner ? (
-                                <>
-                                    <DropdownMenuItem onClick={handleEdit}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        Edit post
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleDelete}>
-                                        <Trash2 className="mr-2 h-4 w-4" />
-                                        Delete post
-                                    </DropdownMenuItem>
-                                </>
-                            ) : (
-                                <DropdownMenuItem onClick={handleReport}>
-                                    <Flag className="mr-2 h-4 w-4" />
-                                    Report post
-                                </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-semibold">{post?.description || "Pas de contenu"}</h3>
-                </div>
-                <div className="relative w-full h-64 rounded-lg overflow-hidden">
+        <Card ref={cardRef} className={`w-full max-w-[470px] mx-auto ${className} !px-0 overflow-hidden`} id={post.id}>
+            <div className="relative">
+                <div className="relative aspect-square w-full bg-slate-100">
                     {post.assets.map((asset, index) => {
                         if (index === currentAsset) {
                             if (asset.type === "image") {
@@ -262,10 +91,10 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                                         key={index}
                                         src={asset.url}
                                         alt={`photo - ${post?.description || "Pas de contenu"}`}
-                                        height={400}
-                                        width={600}
-                                        style={{ objectFit: "cover", maxHeight: 400 }}
-                                        className="bg-slate-200/50"
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 470px) 100vw, 470px"
+                                        priority={index === 0}
                                     />
                                 );
                             }
@@ -275,20 +104,22 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                                         key={index}
                                         src={asset.url}
                                         playsInline
+                                        controls
+                                        className="h-full w-full object-cover"
                                         title={`video - ${post?.description || "Pas de contenu"}`}
-                                        className="bg-slate-200/50 object-cover"
                                     />
                                 );
                             }
                         }
+                        return null;
                     })}
                     {post.assets.length > 1 && (
                         <>
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
-                                onClick={prevImage}
+                                className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/60 text-white"
+                                onClick={handleAssetNavigation.prev}
                                 aria-label="image précédente"
                             >
                                 <ChevronLeft className="h-6 w-6" />
@@ -296,8 +127,8 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-slate-500/80 text-white hover:bg-slate-500/70"
-                                onClick={nextImage}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/60 text-white"
+                                onClick={handleAssetNavigation.next}
                                 aria-label="image suivante"
                             >
                                 <ChevronRight className="h-6 w-6" />
@@ -305,34 +136,102 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
                         </>
                     )}
                 </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-                <div className="flex items-center gap-2"></div>
-                <div className="flex gap-4">
-                    <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
-                        <ThumbsUp className="w-5 h-5" />
-                        <span className="text-sm">Like</span>
-                        {!!post.likedByUserIds?.length && <span id={key}></span>}
-                    </button>
-                </div>
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button variant="ghost" className="text-muted-foreground" onClick={handleCommentClick}>
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            Comment
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent side="bottom" className="h-auto max-h-[66vh] sm:max-w-2xl sm:mx-auto overflow-y-auto py-0">
-                        <SheetHeader className="py-4 fixed z-50 bg-background sm:max-w-2xl sm:mx-auto">
-                            <SheetTitle>Comments</SheetTitle>
-                        </SheetHeader>
-                        <div className="mt-10">
-                            <CommentSection comments={comments} postId={post.id} />
+
+                <div className="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/60 via-black/40 to-transparent">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <Avatar className="w-8 h-8 ring-2 ring-white/50">
+                                <AvatarImage src={post?.elfeAvatarUrl} alt={post?.elfeName || "lutin anonyme"} />
+                                <AvatarFallback className="bg-white/10 text-white">
+                                    {post?.elfeName
+                                        ? post.elfeName
+                                              .split(" ")
+                                              .map(name => name[0])
+                                              .join("")
+                                              .toUpperCase()
+                                              .slice(0, 2)
+                                        : "--"}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <h2 className="text-sm font-semibold leading-none text-white">{post?.elfeName || "lutin anonyme"}</h2>
+                                <p className="text-xs text-white/80">{formatCreatedAt(post.createdAt)}</p>
+                            </div>
                         </div>
-                    </SheetContent>
-                </Sheet>
-                <ShareButtons title={post.description} url={`${process.env.NEXT_PUBLIC_APP_BASEURL}/#${post.id}`} />
-            </CardFooter>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`h-8 w-8 text-white hover:bg-black/20 ${
+                                    userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400 hover:text-yellow-500" : "hover:text-yellow-400"
+                                }`}
+                                onClick={toggleFavorite}
+                                disabled={isFavoriteLoading}
+                            >
+                                {!isFavoriteLoading ? (
+                                    <Star className={`h-4 w-4 ${userProfile?.favoritePostIds?.includes(post.id) ? "text-yellow-400" : "text-white"}`} />
+                                ) : (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                )}
+                            </Button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-black/20">
+                                        <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    {isCurrentUserOwner ? (
+                                        <>
+                                            <DropdownMenuItem onClick={handleEdit}>
+                                                <Edit className="mr-2 h-4 w-4" />
+                                                Edit post
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={handleDelete}>
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Delete post
+                                            </DropdownMenuItem>
+                                        </>
+                                    ) : (
+                                        <DropdownMenuItem onClick={handleReport}>
+                                            <Flag className="mr-2 h-4 w-4" />
+                                            Report post
+                                        </DropdownMenuItem>
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <CardContent className="px-4 pt-4 pb-0">
+                <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-4">
+                        <button className={`flex items-center gap-1 ${isLiked ? "text-success" : "text-muted-foreground"}`} onClick={handleLikeClick}>
+                            <ThumbsUp className="w-5 h-5" />
+                            {!!post.likedByUserIds?.length && <span id={key} className="text-sm"></span>}
+                        </button>
+                        <Sheet>
+                            <SheetTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-muted-foreground px-0" onClick={handleCommentClick}>
+                                    <MessageCircle className="w-5 h-5" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="bottom" className="h-[80vh] sm:max-w-2xl sm:mx-auto">
+                                <SheetHeader>
+                                    <SheetTitle>Comments</SheetTitle>
+                                </SheetHeader>
+                                <div className="mt-4">
+                                    <CommentSection comments={comments} postId={post.id} />
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+                        <ShareButtons title={post.description} url={`${process.env.NEXT_PUBLIC_APP_BASEURL}/#${post.id}`} />
+                    </div>
+                    <p className="text-sm">{post?.description || "Pas de contenu"}</p>
+                </div>
+            </CardContent>
         </Card>
     );
 };
