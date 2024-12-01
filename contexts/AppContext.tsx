@@ -51,9 +51,6 @@ export const AppUserProvider: React.FC<UserProviderProps> = ({ children, value =
         return () => clearInterval(timer);
     }, []);
 
-    console.log("isLaunched", isLaunched);
-    console.log("difference", defaultValue.targetDate.getTime() - new Date().getTime());
-
     useEffect(() => {
         if (!isLoaded) {
             return;

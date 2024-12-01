@@ -17,8 +17,6 @@ export function Countdown() {
             const now = new Date();
             const difference = targetDate.getTime() - now.getTime();
 
-            console.log(difference);
-
             if (difference >= 0) {
                 setTimeLeft({
                     days: Math.floor(difference / (1000 * 60 * 60 * 24)),
