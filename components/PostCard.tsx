@@ -25,8 +25,8 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     const {
         currentAsset,
         comments,
-        isReporting,
-        isDeleting,
+        // isReporting,
+        // isDeleting,
         isFavoriteLoading,
         isLiked,
         isCurrentUserOwner,
@@ -40,7 +40,7 @@ export const PostCard = ({ post, className = "" }: PostCardProps) => {
     } = usePostCard(post);
 
     const { clerkUser, userProfile } = useAppContext();
-    const [isVisible, setIsVisible] = useState(false);
+    const [, setIsVisible] = useState(false);
     const cardRef = useRef(null);
     const key = kebabCase(post?.description + "likes");
 
